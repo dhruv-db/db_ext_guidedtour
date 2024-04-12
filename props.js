@@ -99,9 +99,41 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
             const currSheet = qlik.navigation.getCurrentSheetId().sheetId;
             return [
                 {
+                    type: "array",
+                    ref: "listItems",
+                    label: "Tour Block",
+                    itemTitleRef: "label",
+                    allowAdd: true,
+                    allowRemove: true,
+                    addTranslation: "Add New Tour",
+                    items: {
+                        button: {
+                            label: "Click me",
+                            component: "button",
+                            action: function (data) {
+                                alert("click!");
+                            }
+                        },
+                        label: {
+                            type: "string",
+                            ref: "label",
+                            label: "Title",
+                            expression: "optional"
+                        },
+                        textarea: {
+                            label: "Tour Description",
+                            component: "textarea",
+                            maxlength: 100,//you shouldn't write too much
+                            ref: "myTextarea"
+                        }
+                    }
+                },
+                {
                     label: "The first two dimensions are mandatory: object-id and text",
                     component: "text"
-                }, {
+                },
+                
+                {
                     label: 'Mode to launch tour',
                     type: 'string',
                     component: 'dropdown',

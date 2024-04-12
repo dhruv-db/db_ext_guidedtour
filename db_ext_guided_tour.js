@@ -73,13 +73,16 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./functions", "./lice
             type: "items",
             component: "accordion",
             items: [
-                {
-                    uses: "dimensions",
-                    min: 2,
-                    max: 5
-                }, /*{
+              
+                // {
+                //     uses: "dimensions",
+                //     min: 2,
+                //     max: 5
+                // }, 
+                /*{
                     uses: "sorting"  // no more needed. 
-                },*/ {
+                },*/ 
+                {
                     uses: "settings"
                 }, /*{
 					label: 'Tour Items',
