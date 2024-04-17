@@ -2,6 +2,38 @@
 
 define(["qlik", "jquery", "./license"], function (qlik, $, license) {
 
+
+
+    // const currSheet = qlik.navigation.getCurrentSheetId().sheetId;
+    // const app = qlik.currApp();
+
+    // function getObjList() {
+    // app.getAppObjectList( 'sheet', function(reply){
+    //     var str = "";
+    //     var objList = "";
+    //     //var targetSheet = "";
+    //     $.each(reply.qAppObjectList.qItems, function(key, value) {
+
+    //         if (value.qInfo.qId === currSheet) {
+    //             //targetSheet = value;
+    //             $.each(value.qData.cells, function(k,v){
+    //                 objList += v.name + ' ';
+    //               });
+    //         }
+    //      // str += value.qData.title + ' ';
+          
+    //     });
+    //     // alert(str);
+    //   //  console.log('str',str);
+    //    // console.log('obj',obj);
+    //     console.log('targetSheet',objList);
+    //   });
+    // }
+    // getObjList();
+
+
+
+
     function isScrolledIntoView(elem) {
         var docViewTop = $(window).scrollTop();
         var docViewBottom = docViewTop + $(window).height();
