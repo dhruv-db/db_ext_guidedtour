@@ -3,7 +3,8 @@
 define(["qlik", "jquery", "./functions", "./license", "./picker"], function
     (qlik, $, functions, license, picker) {
 
-    const ext = 'db_ext_guided_tour';
+    const ext = 'db_ext_guided_tour_3';
+    // var highlightedObj;
 
     function subSection(labelText, itemsArray, argKey, argVal) {
         var ret = {
@@ -63,66 +64,194 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
         return ret;
     }
 
+    function getItemPos(arg, context) {
+        // with two arguments arg and context, the function an search by a unique, automatically set cId
+        // attribute within the array of the property tree, which is the nth position
+        const this_cId = arg.cId;  // unique id of the given item within pTourItems array
+        //console.log('looking for', this_cId);
+        var itemPos = null;
+        context.properties.pTourItems.forEach(function (tourItem, i) {
+            itemPos = tourItem.cId == this_cId ? i : itemPos
+        });
+        return itemPos
+    }
+
     return {
-        /*
-        tourItems: function () {
+
+        tourItems: function (qlik, guided_tour_global) {
+            const app = qlik.currApp();
+            const currSheet = qlik.navigation.getCurrentSheetId().sheetId;
+            const enigma = app.model.enigmaModel;
+
             return [
                 {
                     type: "array",
                     ref: "pTourItems",
                     label: "Tour Items",
-                    itemTitleRef: "label",
+                    itemTitleRef: "selector",
                     allowAdd: true,
                     allowRemove: true,
                     addTranslation: "Add Tooltip",
                     items: {
-                        label: {
-                            type: "string",
+                        /*label: {
                             ref: "label",
-                            label: "Label"
-                        }, more: {
-                            label: "CSS selector",
                             type: "string",
-                            ref: "selector"
-                        }, text: {
+                            label: "Label"
+                        },*/
+                        selector: {
+                            ref: "selector",
+                            label: function (arg, context) {
+                                var itemPos = getItemPos(arg, context);
+                                // we "abuse" this function to hightlight for 1/3 second the
+                                // object it refers to. 
+                                // if (arg.selector) {
+                                //     // put current properties into tooltipsCache
+                                //     guided_tour_global.tooltipsCache[context.properties.qInfo.qId] = JSON.parse(JSON.stringify(context.properties.pTourItems));
+                                //     functions.play3(context.properties.qInfo.qId, context.layout, itemPos, false, enigma,
+                                //         guided_tour_global, currSheet);
+                                // }
+
+                                //const newHighlightedObj = arg.selector.split(':').slice(-1)[0];
+                                var highlightedObj = arg.selector.split(':').slice(-1)[0];
+                                if (arg.selector) {  // && highlightedObj != newHighlightedObj) {
+                                    //highlightedObj = newHighlightedObj
+                                    //console.log('rendering tour item', highlightedObj);
+                                    const elem = $(`[tid="${highlightedObj}"]`);
+                                    const bgBefore = 'rgba(0,0,0,0)'; // elem.css('background-color');
+                                    elem.animate({
+                                        backgroundColor: 'yellow'
+                                    }, 300, function () {
+                                        elem.css('background-color', bgBefore);
+                                    })
+                                }
+
+                                return "CSS selector"
+                            },
+                            type: "string"
+                        },
+                        picker: {
+                            label: function (arg) {
+                                return arg.selector ? "Show object" : "Pick object"
+                            },
+                            component: "button",
+                            action: function (arg, context) {
+                                const separator1 = '.pp-section'; // class for accordeons top <div>
+                                const separator2 = '.pp-nm-di'; // class for sub-accordeons <li>
+                                const inputRef = 'selector';
+
+                                var itemPos = getItemPos(arg, context);
+
+                                // find out if the button was previously pressed and the user is still in "pick-mode"
+                                if (arg.selector) {
+                                    // put current properties into tooltipsCache
+                                    guided_tour_global.tooltipsCache[context.properties.qInfo.qId] = JSON.parse(JSON.stringify(context.properties.pTourItems));
+                                    functions.play3(
+                                        context.properties.qInfo.qId, context.layout, itemPos, false, enigma,
+                                        guided_tour_global, currSheet);
+                                }
+                                else if ($('.guided-tour-picker').length > 0) {
+                                    // end the pick-mode
+                                    $('.guided-tour-picker').remove();
+                                } else {
+
+                                    console.log('found in pos', itemPos);
+                                    var domPos = null;
+                                    // now inspect the DOM model for CSS class 'pp-section' elements
+                                    $(separator1).each(function (i, e) {
+                                        // console.log('DOM:', i, '.pp-section', $(e)[0].innerText);
+                                        domPos = $(e)[0].innerText.indexOf('Tour Items') == 0 ? i : domPos
+                                    })
+                                    if (domPos) {
+                                        //console.log('found in DOM', domPos);
+                                        const cssSelector = `${separator1}:nth-child(${domPos + 1}) ${separator2}:nth-child(${itemPos + 1}) [tid="${inputRef}"] input`;
+                                        // console.log('cssSelector', cssSelector);
+                                        if ($(cssSelector).length > 0) {
+                                            picker.pickOne(context.properties.qInfo.qId, cssSelector);
+                                            // $(cssSelector).trigger('qv-activate');
+                                            // $(cssSelector).val('hello' + Math.random());
+                                            // $(cssSelector).trigger('change');
+                                        } else {
+                                            alert('Cannot find the "Tour Items" accordeon in DOM model. Invalid css selector:', cssSelector);
+                                        }
+                                    } else {
+                                        alert('Cannot find the "Tour Items" accordeon in DOM model. Invalid css selector:', separator1);
+                                    }
+                                }
+                            }
+                        },
+                        html: {
+                            ref: "html",
                             label: "Text (HTML)",
                             type: "string",
-                            ref: "html"
+                            component: "textarea",
+                            rows: 5,
+                            maxlength: 4000,
+                            expression: 'optional'
+                        },
+                        more: {
+                            component: 'expandable-items',
+                            items: {
+                                rnd1: {
+                                    label: "More Settings",
+                                    type: "items",
+                                    items: {
+                                        rnd2: {
+                                            label: 'CSS to use',
+                                            type: 'string',
+                                            ref: 'itemCss',
+                                            expression: 'optional'
+                                        },
+                                        rnd3: {
+                                            label: 'Positioning',
+                                            type: 'string',
+                                            ref: 'itemPos',
+                                            expression: 'optional'
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             ]
         },
-        */
-        presentation: function (app, guided_tour_global) {
+
+        tourSettings: function (app, guided_tour_global) {
             const enigma = app.model.enigmaModel;
             const currSheet = qlik.navigation.getCurrentSheetId().sheetId;
             return [
-                {
+                /*{
                     label: "The first two dimensions are mandatory: object-id and text",
                     component: "text"
-                }, {
+                },*/
+                {
                     label: 'Mode to launch tour',
                     type: 'string',
                     component: 'dropdown',
                     ref: 'pLaunchMode',
                     defaultValue: 'click',
-                    options: [{
-                        value: "click",
-                        label: "Click to run tour"
-                    }, {
-                        value: "hover",
-                        label: "Move mouse over objects \u2605"
-                    }, {
-                        value: "auto-always",
-                        label: "Auto-launch tour (always)"
-                    }, {
-                        value: "auto-once",
-                        label: "Auto-launch tour once \u2605"
-                    }, {
-                        value: "auto-once-p-obj",
-                        label: "Auto-launch tooltips once \u2605"
-                    }]
+                    options: [
+                        {
+                            value: "click",
+                            label: "Click to run tour"
+                        },
+                        // {
+                        //     value: "hover",
+                        //     label: "Move mouse over objects \u2605"
+                        // },
+                        // {
+                        //     value: "auto-always",
+                        //     label: "Auto-launch tour (always)"
+                        // },
+                        // {
+                        //     value: "auto-once",
+                        //     label: "Auto-launch tour once \u2605"
+                        // },
+                        // {
+                        //     value: "auto-once-p-obj",
+                        //     label: "Auto-launch tooltips once \u2605"
+                        // }
+                    ]
                 }, {
                     label: "Note: Mouse-over mode only supports Sense object IDs, no other CSS-selectors.",
                     component: "text",
@@ -134,13 +263,17 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
                 }, {
                     label: "\u2605 Premium feature only with license",
                     component: "text"
-                }, {
+                },
+                /*{
                     label: "Select objects for tour",
                     component: "button",
                     action: function (arg) {
-                        picker.pick(arg, enigma, guided_tour_global);
+                        console.log('arg', arg);
+                        picker.pick(arg.qInfo.qId, enigma, guided_tour_global);
                     }
-                }, subSection('Select A Specific Tour', [
+                }
+                */
+                /*, subSection('Select A Specific Tour', [
                     {
                         label: "If you have multiple tours in your data model, you may want to filter the right one by making below selection",
                         component: "text"
@@ -155,7 +288,9 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
                         ref: 'pTourSelectVal',
                         expression: 'optional'
                     }
-                ]), subSection('Button Text & Color', [
+                ]) 
+                */
+                , subSection('Button Text & Color', [
                     {
                         label: 'Text for Tour Start',
                         type: 'string',
@@ -360,9 +495,9 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
         about: function (qext) {
             return [
                 {
-                    label: function (arg) { return 'Installed extension version ' + qext.version },
+                    label: function (arg) { return 'Installed version: ' + qext.version },
                     component: "link",
-                    url: '../extensions/db_ext_guided_tour/db_ext_guided_tour.qext'
+                    url: '../extensions/db_ext_guided_tour_3/db_ext_guided_tour_3.qext'
                 }, {
                     label: "This extension is available either licensed or free of charge by data/\\bridge, Qlik OEM partner and specialist for Mashup integrations.",
                     component: "text"
