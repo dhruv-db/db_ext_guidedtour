@@ -10,14 +10,23 @@
 # v1.1, Christof Schwarz, 25-Sep-2022, ask to enter new API Key in cloud, when first command fails 
 # v1.1.1, Christof Schwarz, 11-Oct-2022, coloring the console output
 # v1.1.2, Christof Schwarz, 02-Nov-2022, fix for younger qlik.exe versions
+# v1.2, Christof, 22-Apr-2024, allow multiple configs for different computers in settings.json
 
-Write-Host "*** update Qlik Extension PS Script by Christof Schwarz v1.1.2 ***"
+$hostname = hostname 
+Write-Host "*** running " -NoNewline
+Write-Host -f Cyan "updateextension.ps1" -NoNewLine
+Write-Host " v1.2 on computer '$($hostname)' ***"
 
 # Read settings from Json file
 $settings = Get-Content -Raw -Path ".vscode\settings.json" | ConvertFrom-Json
 
-$qlik_exe = $settings.christofs_options.qlik_cli_location 
-# Write-Host $qlik_exe
+if (!($settings.PSObject.Properties.Name -contains $hostname)) {
+    Write-Host -f red ".vscode\settings.json does not have an attribute for hostname '$hostname'."
+    Exit
+} 
+$settings = ($settings | Select-Object -ExpandProperty $hostname)
+$qlik_exe = $settings.qlik_cli_location 
+Write-Host "Qlik-CLI:" $qlik_exe
 
 # Figure out the name of the extension by the .qext file
 $folder = (Split-Path $PSScriptRoot -Parent)
@@ -60,15 +69,15 @@ Remove-Item -LiteralPath "$($folder)$($rnd)" -Force -Recurse
 
 # ------------------- Qlik Sense Windows ------------------------
 
-if (@("win", "both").Contains($settings.christofs_options.save_to)) {
+if (@("win", "both").Contains($settings.save_to)) {
     # want to upload to Qlik Sense on Windows
     Write-Host -f Cyan "`n--> Qlik Sense on Windows: Publishing extension '$($extension_name)'"
-    $cert = Get-PfxCertificate -FilePath $settings.christofs_options.client_cert_location
-    $api_url = $settings.christofs_options.qrs_url
+    $cert = Get-PfxCertificate -FilePath $settings.client_cert_location
+    $api_url = $settings.qrs_url
     $xrfkey = "A3VWMWM3VGRH4X3F"
     $headers = @{
-        "$($settings.christofs_options.header_key)" = $settings.christofs_options.header_value; 
-        "X-Qlik-Xrfkey"                             = $xrfkey
+        "$($settings.header_key)" = $settings.header_value; 
+        "X-Qlik-Xrfkey"           = $xrfkey
     }
     
     
@@ -110,14 +119,14 @@ if (@("win", "both").Contains($settings.christofs_options.save_to)) {
 
 # ------------------- Qlik Cloud ----------------------
 
-if (@("cloud", "both").Contains($settings.christofs_options.save_to)) {
+if (@("cloud", "both").Contains($settings.save_to)) {
     # want to upload to Qlik Cloud
 
-    $resp = & $qlik_exe context use "$($settings.christofs_options.qlik_cli_context)" 
+    $resp = & $qlik_exe context use "$($settings.qlik_cli_context)" 
     # if the response is an Error (length: 0), that is when the context doesn't exist, skip the rest.
     if ($resp.length -gt 0) {
     
-        Write-Host -f Cyan "`n--> Qlik Cloud: Publishing extension '$($extension_name)' to '$($settings.christofs_options.qlik_cli_context)'"
+        Write-Host -f Cyan "`n--> Qlik Cloud: Publishing extension '$($extension_name)' to '$($settings.qlik_cli_context)'"
         # $extension_exists = & $qlik_exe extension get "$($extension_name)"
         $extension_list = & $qlik_exe extension ls
         if (-not $extension_list) {
