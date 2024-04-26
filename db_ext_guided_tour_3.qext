@@ -4,7 +4,7 @@
     "description": "Extension to show tooltips tours over Qlik Sense objects",
     "author": "Christof Schwarz",
     "homepage": "www.databridge.ch",
-    "version": "3.0.1 alpha",
+    "version": "3.0.2 alpha",
     "changehistory": {
         "3.0.1": "start into new v3" 
     },

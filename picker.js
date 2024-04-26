@@ -244,6 +244,7 @@ define(["qlik", "jquery", "./functions"], function
                             .click(function () {
                                 const objType = $(`[tid="${pickedObj}"] article`).attr('tid').replace('qv-object-', '');
                                 console.log('picked object', objType, pickedObj);
+                                console.log('trigger events in DOM element', cssSelector)
                                 if ($(cssSelector).length == 1) {
                                     $(cssSelector).trigger('qv-activate');
                                     $(cssSelector).val(objType + ':' + pickedObj);

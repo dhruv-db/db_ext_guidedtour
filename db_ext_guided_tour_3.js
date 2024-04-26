@@ -84,25 +84,10 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./functions", "./lice
                 {
                     uses: "settings"
                 },
-                {
-                    label: 'Tour Items',
-                    type: 'items',
-                    items: props.tourItems(qlik, guided_tour_global)
-                },
-                {
-                    label: 'Tour Settings',
-                    type: 'items',
-                    items: props.tourSettings(qlik.currApp(this), guided_tour_global)
-                },
-                {
-                    label: 'License',
-                    type: 'items',
-                    items: props.licensing(qlik.currApp(this))
-                }, {
-                    label: 'About this extension',
-                    type: 'items',
-                    items: props.about(guided_tour_global.qext)
-                }
+                props.tourItems(qlik, guided_tour_global),
+                props.tourSettings(qlik.currApp(this), guided_tour_global),
+                props.licensing(qlik.currApp(this)),
+                props.about(guided_tour_global.qext)
             ]
         },
         snapshot: {
