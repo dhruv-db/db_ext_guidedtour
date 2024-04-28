@@ -235,7 +235,7 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
                                         label: "More Settings",
                                         type: "items",
                                         items: {
-                                            cssTooltipBase: { // For tooltip base/BG style
+                                            cssTooltipBase: { // For custom css tooltip style
                                                 ref: "pCustomStyles",
                                                 label: "CSS (Tooltip Base)",
                                                 type: "string",
@@ -245,16 +245,16 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
                                                 expression: 'optional',
                                                 defaultValue: 'background-color: rgb(250 15 15 / 90%);'
                                             },
-                                            cssTooltipText: { // For tooltip text Style
-                                                ref: "pCustomTextStyles",
-                                                label: "CSS (Tooltip Text)",
-                                                type: "string",
-                                                component: "textarea",
-                                                rows: 4,
-                                                maxlength: 4000,
-                                                expression: 'optional',
-                                                defaultValue: 'color: rgb(224, 224, 224);'
-                                            }
+                                            // cssTooltipText: { // For tooltip text Style
+                                            //     ref: "pCustomTextStyles",
+                                            //     label: "CSS (Tooltip Text)",
+                                            //     type: "string",
+                                            //     component: "textarea",
+                                            //     rows: 4,
+                                            //     maxlength: 4000,
+                                            //     expression: 'optional',
+                                            //     defaultValue: 'color: rgb(224, 224, 224);'
+                                            // }
                                         }
                                     }
                                 }

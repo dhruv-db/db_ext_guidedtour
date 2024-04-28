@@ -228,14 +228,15 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                 //const vizId = html.split(' ').length == 1 ? html : null; // instead of html text it could be an object id of a chart to be rendered
                 const vizId = null;
 
-                var tooltipStyle = `width:${layout.pDefaultWidth}px;color:${layout.pFontColor};background-color:${layout.pBgColor};`;
+                var tooltipStyle = `width:${layout.pDefaultWidth}px;color:${layout.pFontColor};background-color:${layout.pBgColor}`;
+                var tooltipCustomStyle = `${layout.pCustomStyles}`
 
                 var attr = {};
                 try {
                     if (currElem[2]) attr = JSON.parse(currElem[2].qText);  // if there is a 3rd dimension it is the attribute dimension.
                     //if (layout.pAttrFromDim && currElem[layout.pAttrFromDim]) attr = JSON.parse(currElem[layout.pAttrFromDim].qText);
                 } catch (err) { };
-                if (attr.css) tooltipStyle += attr.css;
+                if (attr.css) !tooltipCustomStyle ? tooltipStyle : tooltipCustomStyle += attr.css;
                 var fontColor;
                 var bgColor;
                 var orientation = attr.orient || null;
