@@ -229,14 +229,16 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                 const vizId = null;
 
                 var tooltipStyle = `width:${layout.pDefaultWidth}px;color:${layout.pFontColor};background-color:${layout.pBgColor}`;
-                var tooltipCustomStyle = `${layout.pCustomStyles}`
+                var tooltipCustomStyle = currElem.pCustomStyles;
+                // if custom css added in the props then it will overwrite common css
+                var CurrTolltipStyle = tooltipCustomStyle == '' ? tooltipStyle : `width:${layout.pDefaultWidth}px;color:${layout.pFontColor};background-color:${layout.pBgColor};` + currElem.pCustomStyles;
 
                 var attr = {};
                 try {
                     if (currElem[2]) attr = JSON.parse(currElem[2].qText);  // if there is a 3rd dimension it is the attribute dimension.
                     //if (layout.pAttrFromDim && currElem[layout.pAttrFromDim]) attr = JSON.parse(currElem[layout.pAttrFromDim].qText);
                 } catch (err) { };
-                if (attr.css) !tooltipCustomStyle ? tooltipStyle : tooltipCustomStyle += attr.css;
+                if (attr.css) CurrTolltipStyle += attr.css;
                 var fontColor;
                 var bgColor;
                 var orientation = attr.orient || null;
@@ -301,7 +303,7 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                     // add the tooltip div
 
                     $(rootContainer).append(`
-                    <div class="lui-tooltip  guided-tour-toolip-parent" id="${ownId}_tooltip" style="${tooltipStyle};display:none;position:absolute;">
+                    <div class="lui-tooltip  guided-tour-toolip-parent" id="${ownId}_tooltip" style="${CurrTolltipStyle};display:none;position:absolute;">
                         <!--${selector}-->
                         <span style="opacity:0.6;">${tooltipNo + 1}/${guided_tour_global.tooltipsCache[ownId].length}</span>
                         <span class="lui-icon  lui-icon--close" style="float:right;cursor:pointer;${layout.pLaunchMode == 'hover' ? 'opacity:0;' : ''}" id="${ownId}_quit"></span>
