@@ -155,7 +155,7 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./functions", "./lice
             const switchPosition = $('#' + ownId + '_hovermode').is(':checked') ? 'checked' : '';
 
             $element.html(`
-                <div id="${ownId}_parent" style="height:100%;display:flex;justify-content:center;align-items:center;color:${layout.pExtensionFontColor};background-color:${layout.pExtensionBgColor}">`
+                <div id="${ownId}_parent" style="height:100%;display:flex;justify-content:center;align-items:center;color:${layout.pExtensionFontColor};background-color:${layout.pExtensionBgColor};${layout.pCustomStyles}">`
                 + (layout.pLaunchMode == 'hover' ? `
                     <div class="lui-switch" style="margin-right:9px;">
                       <label class="lui-switch__label">
@@ -167,11 +167,11 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./functions", "./lice
                       </label>
                     </div>
                     `: '') + `
-                    <div id="${ownId}_start" style="${layout.pLaunchMode == 'hover' ? '' : 'cursor:pointer;'} text-align:center;${layout.pMoreStyles}">
+                    <div id="${ownId}_start" style="${layout.pLaunchMode == 'hover' ? '' : 'cursor:pointer;'} text-align:center;${layout.pMoreStyles};${layout.pCustomTextStyles}">
                         <span class="lui-icon  lui-icon--large  ${getActiveTour(ownId, currSheet, layout) == ownId ? 'lui-icon--reload  guided-tour-rotate' : 'lui-icon--play'}" style="${!layout.pShowIcon || layout.pLaunchMode == 'hover' ? 'display:none;' : ''}" id="${ownId}_play"></span> 
                         ${layout.pTextStart}
                     </div>
-                    <!--div id="${ownId}_test" style="${layout.pLaunchMode == 'hover' ? '' : 'cursor:pointer;'} text-align:center;${layout.pMoreStyles}">
+                    <!--div id="${ownId}_test" style="${layout.pLaunchMode == 'hover' ? '' : 'cursor:pointer;'} text-align:center;${layout.pMoreStyles};${layout.pCustomTextStyles}">
                         TEST
                     </div-->
                     

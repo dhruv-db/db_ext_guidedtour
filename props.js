@@ -128,7 +128,7 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
                                 }
                             });
                     }
-                    return `🗨 Tooltip Items (${arg.pTourItems ? arg.pTourItems.length : 0})`
+                    return `💬 Tooltip Items (${arg.pTourItems ? arg.pTourItems.length : 0})`
                 },
                 type: 'items',
                 items: [
@@ -235,22 +235,31 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
                                         label: "More Settings",
                                         type: "items",
                                         items: {
-                                            rnd2: {
-                                                label: 'CSS to use',
-                                                type: 'string',
-                                                ref: 'itemCss',
-                                                expression: 'optional'
+                                            cssTooltipBase: { // For tooltip base/BG style
+                                                ref: "pCustomStyles",
+                                                label: "CSS (Tooltip Base)",
+                                                type: "string",
+                                                component: "textarea",
+                                                rows: 4,
+                                                maxlength: 4000,
+                                                expression: 'optional',
+                                                defaultValue: 'background-color: rgb(250 15 15 / 90%);'
                                             },
-                                            rnd3: {
-                                                label: 'Positioning',
-                                                type: 'string',
-                                                ref: 'itemPos',
-                                                expression: 'optional'
+                                            cssTooltipText: { // For tooltip text Style
+                                                ref: "pCustomTextStyles",
+                                                label: "CSS (Tooltip Text)",
+                                                type: "string",
+                                                component: "textarea",
+                                                rows: 4,
+                                                maxlength: 4000,
+                                                expression: 'optional',
+                                                defaultValue: 'color: rgb(224, 224, 224);'
                                             }
                                         }
                                     }
                                 }
                             }
+
                         }
                     }
                 ]
@@ -262,7 +271,7 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
             const enigma = app.model.enigmaModel;
             const currSheet = qlik.navigation.getCurrentSheetId().sheetId;
             return {
-                label: "Tour Settings",
+                label: "⚙️ Tour Settings",
                 type: 'items',
                 items: [
                     /*{
