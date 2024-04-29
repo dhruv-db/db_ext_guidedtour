@@ -206,7 +206,7 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
                                             const cssSelector = `${cssSel1}:nth-child(${domPos + 1}) ${cssSel2}:nth-child(${itemPos + 1}) [tid="${inputRef}"] input`;
                                             // console.log('cssSelector', cssSelector);
                                             if ($(cssSelector).length > 0) {
-                                                picker.pickOne(context.properties.qInfo.qId, cssSelector);
+                                                picker.pickOne(context.properties.qInfo.qId, cssSelector, enigma, itemPos);
                                                 // $(cssSelector).trigger('qv-activate');
                                                 // $(cssSelector).val('hello' + Math.random());
                                                 // $(cssSelector).trigger('change');

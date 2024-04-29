@@ -221,7 +221,7 @@ define(["qlik", "jquery", "./functions"], function
         //     });
         // },
 
-        pickOne: function (ownId, cssSelector) {
+        pickOne: function (ownId, enigma, itemPos) {
 
             $(".guided-tour-picker").remove(); // remove previous divs
             const posCorr = $(`[tid="${ownId}"]`).offset();
@@ -244,20 +244,34 @@ define(["qlik", "jquery", "./functions"], function
                             .click(function () {
                                 const objType = $(`[tid="${pickedObj}"] article`).attr('tid').replace('qv-object-', '');
                                 console.log('picked object', objType, pickedObj);
-                                console.log('trigger events in DOM element', cssSelector)
-                                if ($(cssSelector).length == 1) {
-                                    $(cssSelector).trigger('qv-activate');
-                                    $(cssSelector).val(objType + ':' + pickedObj);
-                                    $(cssSelector).trigger('change');
-                                    const bgBefore = $(cssSelector).css('background-color');
-                                    $(cssSelector).animate({
-                                        backgroundColor: 'yellow'
-                                    }, 400, function () {
-                                        $(cssSelector).css('background-color', bgBefore);
+                                // console.log('trigger events in DOM element', cssSelector);
+                                enigma.getObject(ownId)
+                                    .then(o => {
+                                        var prop;
+                                        o.getProperties(o => {
+                                        }).then(p => {
+                                            console.log('enigma properties', p);
+                                            if (p.pTourItems[itemPos]) {
+                                                p.pTourItems[itemPos].selector = `${objType}:${pickedObj}`
+                                                o.setProperties(p);
+                                            }
+                                            // o.setProperties()
+                                        })
                                     })
-                                } else {
-                                    alert('Looks like you navigated away from the Guided Tours Properties panel.');
-                                }
+                                    .catch(e => { })
+                                // if ($(cssSelector).length == 1) {
+                                //     $(cssSelector).trigger('qv-activate');
+                                //     $(cssSelector).val(objType + ':' + pickedObj);
+                                //     $(cssSelector).trigger('change');
+                                //     const bgBefore = $(cssSelector).css('background-color');
+                                //     $(cssSelector).animate({
+                                //         backgroundColor: 'yellow'
+                                //     }, 400, function () {
+                                //         $(cssSelector).css('background-color', bgBefore);
+                                //     })
+                                // } else {
+                                //     alert('Looks like you navigated away from the Guided Tours Properties panel.');
+                                // }
                                 $(".guided-tour-picker").remove();
                             })
                     }

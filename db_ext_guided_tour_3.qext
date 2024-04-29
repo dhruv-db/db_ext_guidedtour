@@ -5,12 +5,11 @@
     "author": "Christof Schwarz",
     "homepage": "www.databridge.ch",
     "version": "3.0.2 alpha",
-     "bundle":
-  {
-		"id": "databridgebundle",
-		"name": "databridge bundle",
-		"description": "Extension bundle of databridge"
-  },
+    "bundle": {
+            "id": "databridgebundle",
+            "name": "databridge bundle",
+            "description": "Extension bundle of databridge"
+    },
     "changehistory": {
         "3.0.1": "start into new v3" 
     },
