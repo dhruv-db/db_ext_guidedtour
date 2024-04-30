@@ -207,9 +207,7 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
                                             // console.log('cssSelector', cssSelector);
                                             if ($(cssSelector).length > 0) {
                                                 picker.pickOne(context.properties.qInfo.qId, enigma, itemPos);
-                                                // $(cssSelector).trigger('qv-activate');
-                                                // $(cssSelector).val('hello' + Math.random());
-                                                // $(cssSelector).trigger('change');
+
                                             } else {
                                                 alert('Cannot find the "Tooltip Items" text in DOM model. Invalid css selector:', cssSelector);
                                             }
@@ -245,16 +243,6 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
                                                 expression: 'optional',
                                                 defaultValue: 'background-color: rgb(250 15 15 / 90%);'
                                             },
-                                            // cssTooltipText: { // For tooltip text Style
-                                            //     ref: "pCustomTextStyles",
-                                            //     label: "CSS (Tooltip Text)",
-                                            //     type: "string",
-                                            //     component: "textarea",
-                                            //     rows: 4,
-                                            //     maxlength: 4000,
-                                            //     expression: 'optional',
-                                            //     defaultValue: 'color: rgb(224, 224, 224);'
-                                            // }
                                         }
                                     }
                                 }

@@ -139,9 +139,6 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./functions", "./lice
             if (qlik.navigation.getMode() != 'edit') $('.guided-tour-picker').remove();
             const lStorageKey = app.id + '|' + ownId;
             const objFieldName = null;
-            //const objFieldName = layout.qHyperCube.qDimensionInfo[0] ? layout.qHyperCube.qDimensionInfo[0].qGroupFieldDefs[0].replace('=', '') : null;
-
-            //console.log(ownId, 'layout', layout);
             // add sheet to activeTooltip object
             if (!Object(guided_tour_global.activeTooltip).hasOwnProperty(currSheet)) {
                 guided_tour_global.activeTooltip[currSheet] = {};
