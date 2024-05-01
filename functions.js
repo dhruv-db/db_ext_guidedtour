@@ -92,9 +92,9 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                 tooltip.width += arrowHeadSize;
                 tooltip.right = target.right + target.width + arrowHeadSize;
                 tooltip.top = Math.min(Math.max(pointTo.top - tooltip.height / 2, 0), screen.height - tooltip.height - 10); // fix if bottom edge of tooltip would be below screen
-                tooltip.arrow = `<div class="guided-tour-arrowhead"
+                tooltip.arrow = `<div class="guided-tour-arrowhead" orientation="${orientation}"
                         style="border-color: rgba(0,0,0,0) rgba(0,0,0,0) rgba(0,0,0,0) ${bgColor}; border-style:solid; 
-                        border-width:${arrowHeadSize}px; position:absolute; right:${-2 * arrowHeadSize}px; top:${pointTo.top - tooltip.top - arrowHeadSize}px">
+                        border-width:${arrowHeadSize}px; position:absolute; right:${-2 * arrowHeadSize + 1}px; top:${pointTo.top - tooltip.top - arrowHeadSize}px">
                     </div>`;
             }
 
@@ -103,9 +103,9 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                 tooltip.width += arrowHeadSize;
                 tooltip.left = Math.min(target.left + target.width + arrowHeadSize, screen.width - tooltip.width - 15);
                 tooltip.top = Math.min(Math.max(pointTo.top - tooltip.height / 2, 0), screen.height - tooltip.height - 10);
-                tooltip.arrow = `<div class="guided-tour-arrowhead"
+                tooltip.arrow = `<div class="guided-tour-arrowhead" orientation="${orientation}"
                         style="border-color: rgba(0,0,0,0) ${bgColor} rgba(0,0,0,0) rgba(0,0,0,0); border-style:solid; 
-                        border-width:${arrowHeadSize}px; position:absolute; left:${-2 * arrowHeadSize}px; top:${pointTo.top - tooltip.top - arrowHeadSize}px">
+                        border-width:${arrowHeadSize}px; position:absolute; left:${-2 * arrowHeadSize + 1}px; top:${pointTo.top - tooltip.top - arrowHeadSize}px">
                     </div>`;
             }
 
@@ -114,9 +114,9 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                 tooltip.height += arrowHeadSize;
                 tooltip.top = Math.max(target.top - tooltip.height - arrowHeadSize, 0);
                 tooltip.left = Math.min(Math.max(pointTo.left - tooltip.width / 2, 0), screen.width - tooltip.width - 15);
-                tooltip.arrow = `<div class="guided-tour-arrowhead"
+                tooltip.arrow = `<div class="guided-tour-arrowhead" orientation="${orientation}"
                        style="border-color: ${bgColor} rgba(0,0,0,0) rgba(0,0,0,0) rgba(0,0,0,0); border-style:solid; 
-                       border-width:${arrowHeadSize}px; position:absolute; left:${pointTo.left - tooltip.left - arrowHeadSize}px; bottom:${-2 * arrowHeadSize}px;">
+                       border-width:${arrowHeadSize}px; position:absolute; left:${pointTo.left - tooltip.left - arrowHeadSize}px; bottom:${-2 * arrowHeadSize + 1}px;">
                     </div>`;
             }
 
@@ -125,9 +125,9 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                 tooltip.height += arrowHeadSize;
                 tooltip.left = Math.min(Math.max(pointTo.left - tooltip.width / 2, 0), screen.width - tooltip.width - 15);
                 tooltip.bottom = Math.max(target.bottom - tooltip.height - arrowHeadSize, 0);
-                tooltip.arrow = `<div class="guided-tour-arrowhead"
+                tooltip.arrow = `<div class="guided-tour-arrowhead" orientation="${orientation}"
                         style="border-color: rgba(0,0,0,0) rgba(0,0,0,0) ${bgColor} rgba(0,0,0,0); border-style:solid; 
-                        border-width:${arrowHeadSize}px; position:absolute; left:${pointTo.left - tooltip.left - arrowHeadSize}px; top:${-2 * arrowHeadSize}px;">
+                        border-width:${arrowHeadSize}px; position:absolute; left:${pointTo.left - tooltip.left - arrowHeadSize}px; top:${-2 * arrowHeadSize + 1}px;">
                     </div>`;
             }
         }

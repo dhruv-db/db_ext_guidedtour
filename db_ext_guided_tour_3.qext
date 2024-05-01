@@ -7,7 +7,7 @@
     "version": "3.0.2 alpha",
     "bundle": {
             "id": "databridgebundle",
-            "name": "databridge bundle",
+            "name": "data/\\bridge",
             "description": "Extension bundle of databridge"
     },
     "changehistory": {

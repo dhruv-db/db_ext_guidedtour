@@ -276,10 +276,10 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
                                 value: "click",
                                 label: "Click to run tour"
                             },
-                            // {
-                            //     value: "hover",
-                            //     label: "Move mouse over objects \u2605"
-                            // },
+                            {
+                                value: "hover",
+                                label: "Icons for every object \u2605"
+                            },
                             // {
                             //     value: "auto-always",
                             //     label: "Auto-launch tour (always)"
@@ -294,11 +294,11 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
                             // }
                         ]
                     },
-                    {
-                        label: "Note: Mouse-over mode only supports Sense object IDs, no other CSS-selectors.",
-                        component: "text",
-                        show: function (arg) { return arg.pLaunchMode == 'hover' }
-                    },
+                    // {
+                    //     label: "Note: Mouse-over mode only supports Sense object IDs, no other CSS-selectors.",
+                    //     component: "text",
+                    //     show: function (arg) { return arg.pLaunchMode == 'hover' }
+                    // },
                     {
                         label: "\u26a0 You have to specify a timestamp field in the auto-launch settings",
                         component: "text",
@@ -533,7 +533,8 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
                         component: "textarea",
                         rows: 5,
                         maxlength: 4000,
-                        expression: 'optional'
+                        expression: 'optional',
+                        defaultValue: { qStringExpression: { qExpr: "=vGuidedTourLicense" } }
                     },
                     {
                         label: "Contact data/\\bridge",
