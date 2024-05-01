@@ -253,6 +253,7 @@ define(["qlik", "jquery", "./functions"], function
                                             console.log('enigma properties', p);
                                             if (p.pTourItems[itemPos]) {
                                                 p.pTourItems[itemPos].selector = `${objType}:${pickedObj}`
+                                                if (!p.pTourItems[itemPos].html) { p.pTourItems[itemPos].html = `This ${objType} is ...` }
                                                 o.setProperties(p);
                                             }
                                             // o.setProperties()

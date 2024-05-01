@@ -105,7 +105,7 @@ while ((Get-Date) -lt ($startTime.AddSeconds(8))) {
             Rename-Item "$($folder)$($rnd)\$($extension_name).js" "$($folder)$($rnd)\$($extension_temp_name).js"
             # patch the 'name' in the .qext file.
             $jsonData = Get-Content -Path "$($folder)$($rnd)\$($extension_temp_name).qext" -Raw | ConvertFrom-Json
-            $jsonData.name = $extension_temp_name
+            $jsonData.name = "~$extension_temp_name"
             $jsonString = $jsonData | ConvertTo-Json -Depth 10
             $jsonString | Set-Content -Path "$($folder)$($rnd)\$($extension_temp_name).qext"
             $extension_name = $extension_temp_name
