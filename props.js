@@ -229,6 +229,10 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
                                         label: "More Settings",
                                         type: "items",
                                         items: {
+                                            MyText: {
+                                                label: "❔ Example: background-color: rgb(250 15 15 / 90%);",
+                                                component: "text"
+                                            },
                                             cssTooltipBase: { // For custom css tooltip style
                                                 ref: "pCustomStyles",
                                                 label: "CSS (Tooltip Base)",
@@ -237,7 +241,6 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
                                                 rows: 4,
                                                 maxlength: 4000,
                                                 expression: 'optional',
-                                                defaultValue: 'background-color: rgb(250 15 15 / 90%);'
                                             },
                                         }
                                     }
@@ -520,7 +523,7 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
         licensing: function (app) {
             const enigma = app.model.enigmaModel;
             return {
-                label: 'License',
+                label: '🔑 License',
                 type: 'items',
                 items: [
                     {
@@ -564,7 +567,7 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
 
         about: function (qext) {
             return {
-                label: 'About this extension',
+                label: 'ⓘ About this extension',
                 type: 'items',
                 items: [
                     {
