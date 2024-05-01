@@ -182,7 +182,7 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
 
                                     // find out if the button was previously pressed and the user is still in "pick-mode"
                                     if (arg.selector) {
-                                        var isPreviewMode = arg.selector ? true : false;
+                                        var isPreviewMode = true;
                                         // put current properties into tooltipsCache
                                         guided_tour_global.tooltipsCache[context.properties.qInfo.qId] = JSON.parse(JSON.stringify(context.properties.pTourItems));
                                         functions.play3(

@@ -177,8 +177,9 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
 
             if (isLast) {
                 if (!licensed) {
+                    // alert(isPreviewMode);
                     // after the last item of a tour, show databridge ad for a second
-                    if (isPreviewMode) {
+                    if (!isPreviewMode) {
                         $(`#${ownId}_tooltip`).children().css('opacity', 0);
                         $(`#${ownId}_text`).after(`<div style="position:absolute; top:35%; color:${$('#' + ownId + '_next').css('color')}; width:100%; left:-3px; text-align:center; font-size:medium;">
                         Tour sponsored by <a href="https://www.databridge.ch" target="_blank" style="color:${$('#' + ownId + '_next').css('color')};">data/\\bridge</a>
@@ -319,6 +320,7 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
 
                     if (vizId) {
                         const app = qlik.currApp();
+
                         $(`#${ownId}_text`).css('height', ($(`#${ownId}_tooltip`).height() - 90) + 'px');
                         // https://help.qlik.com/en-US/sense-developer/June2020/Subsystems/APIs/Content/Sense_ClientAPIs/CapabilityAPIs/VisualizationAPI/get-method.htm
                         app.visualization.get(vizId).then(function (viz) {
@@ -336,8 +338,8 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                     $(`#${ownId}_next`).css('color', fontColor); // set the a-tag button's font color
 
                     // register click trigger for "X" (quit) and Next/Done button
-                    $(`#${ownId}_quit`).click(() => play3(ownId, layout, tooltipNo, true, enigma, guided_tour_global, currSheet, lStorageKey, lStorageVal));
-                    $(`#${ownId}_next`).click(() => play3(ownId, layout, tooltipNo + 1, isLast, enigma, guided_tour_global, currSheet, lStorageKey, lStorageVal));
+                    $(`#${ownId}_quit`).click(() => play3(ownId, layout, tooltipNo, true, enigma, guided_tour_global, currSheet, isPreviewMode, lStorageKey, lStorageVal));
+                    $(`#${ownId}_next`).click(() => play3(ownId, layout, tooltipNo + 1, isLast, enigma, guided_tour_global, currSheet, isPreviewMode, lStorageKey, lStorageVal));
 
                     const calcPositions = findPositions2(selector, rootContainer, `#${ownId}_tooltip`, layout, bgColor, orientation);
 
@@ -416,8 +418,8 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
 
     return {
 
-        play3: function (ownId, layout, tooltipNo, reset, enigma, guided_tour_global, currSheet, lStorageKey, lStorageVal) {
-            play3(ownId, layout, tooltipNo, reset, enigma, guided_tour_global, currSheet, lStorageKey, lStorageVal);
+        play3: function (ownId, layout, tooltipNo, reset, enigma, guided_tour_global, currSheet, isPreviewMode, lStorageKey, lStorageVal) {
+            play3(ownId, layout, tooltipNo, reset, enigma, guided_tour_global, currSheet, isPreviewMode, lStorageKey, lStorageVal);
         },
 
         leonardoMsg: function (ownId, title, detail, ok, cancel, inverse) {
