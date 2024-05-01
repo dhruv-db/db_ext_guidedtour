@@ -1,5 +1,5 @@
 // functions.js: function play externalized 
-
+// Christof's comment
 define(["qlik", "jquery", "./license"], function (qlik, $, license) {
 
     function isScrolledIntoView(elem) {
