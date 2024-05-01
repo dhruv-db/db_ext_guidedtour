@@ -1,12 +1,15 @@
 # https://www.youtube.com/watch?v=xwlQimbwJJE
 
 # First time
-git clone https://github.com/ChristofSchwarz/db_ext_guidedtour
+git clone https://github.com/dhruv-db/db_ext_guidedtour
 git init
-git remote add origin git@github.com:ChristofSchwarz/db_ext_guidedtour.git
+git remote add origin git@github.com:dhruv-db/db_ext_guidedtour.git
 
 
-# Every time
+# Every times
 git add .
 git commit -m "updates" 
 git push -u origin master
+
+# after merged into master, sync your local branch again
+git pull origin master
