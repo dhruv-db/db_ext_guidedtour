@@ -8,8 +8,6 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
     const cssSel2 = '.pp-nm-di'; // class for sub-accordeons <li>
     const cssSel3 = '.pp-nm-di__header-content'; // class for <div> inside cssSel2 that should get the click event
 
-    // var highlightedObj;
-
     function subSection(labelText, itemsArray, argKey, argVal) {
         var ret = {
             component: 'expandable-items',
@@ -139,12 +137,8 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
                         allowAdd: true,
                         allowRemove: true,
                         addTranslation: "Add Tooltip",
+                        allowMove: true,
                         items: {
-                            /*label: {
-                                ref: "label",
-                                type: "string",
-                                label: "Label"
-                            },*/
                             selector: {
                                 ref: "selector",
                                 label: function (arg, context) {
@@ -188,15 +182,17 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
 
                                     // find out if the button was previously pressed and the user is still in "pick-mode"
                                     if (arg.selector) {
+                                        var isPreviewMode = arg.selector ? true : false;
                                         // put current properties into tooltipsCache
                                         guided_tour_global.tooltipsCache[context.properties.qInfo.qId] = JSON.parse(JSON.stringify(context.properties.pTourItems));
                                         functions.play3(
                                             context.properties.qInfo.qId, context.layout, itemPos, false, enigma,
-                                            guided_tour_global, currSheet);
+                                            guided_tour_global, currSheet, isPreviewMode);
                                     }
                                     else if ($('.guided-tour-picker').length > 0) {
                                         // end the pick-mode
                                         $('.guided-tour-picker').remove();
+
                                     } else {
 
                                         // console.log('found in pos', itemPos);

@@ -149,9 +149,9 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
 
 
     //    =========================================================================================
-    function play3(ownId, layout, tooltipNo, reset, enigma, guided_tour_global, currSheet, lStorageKey, lStorageVal) {
+    function play3(ownId, layout, tooltipNo, reset, enigma, guided_tour_global, currSheet, isPreviewMode, lStorageKey, lStorageVal) {
 
-        console.log('play3(', ownId, layout, tooltipNo, reset, enigma, guided_tour_global, currSheet, lStorageKey, lStorageVal, ')');
+        console.log('play3(', ownId, layout, tooltipNo, reset, enigma, guided_tour_global, currSheet, isPreviewMode, lStorageKey, lStorageVal, ')');
 
         //=========================================================================================
         const arrowHeadSize = layout.pArrowHead || 16;
@@ -162,7 +162,6 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
         const isLast = tooltipNo >= (guided_tour_global.tooltipsCache[ownId].length - 1);
 
         if (layout.pConsoleLog) console.log(`${ownId} Play tour, tooltip ${tooltipNo} (isLast ${isLast}, licensed ${licensed}, lStorageKey ${lStorageKey})`);
-
 
         if (reset) {  // end of tour
 
@@ -179,10 +178,12 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
             if (isLast) {
                 if (!licensed) {
                     // after the last item of a tour, show databridge ad for a second
-                    $(`#${ownId}_tooltip`).children().css('opacity', 0);
-                    $(`#${ownId}_text`).after(`<div style="position:absolute; top:35%; color:${$('#' + ownId + '_next').css('color')}; width:100%; left:-3px; text-align:center; font-size:medium;">
+                    if (isPreviewMode) {
+                        $(`#${ownId}_tooltip`).children().css('opacity', 0);
+                        $(`#${ownId}_text`).after(`<div style="position:absolute; top:35%; color:${$('#' + ownId + '_next').css('color')}; width:100%; left:-3px; text-align:center; font-size:medium;">
                         Tour sponsored by <a href="https://www.databridge.ch" target="_blank" style="color:${$('#' + ownId + '_next').css('color')};">data/\\bridge</a>
                         </div>`);
+                    }
                 }
                 function delay(time) {
                     return new Promise(resolve => setTimeout(resolve, time));
@@ -194,7 +195,7 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                     }
                 }
                 catch (err) { }
-                delay(licensed ? 1 : 1000).then(() => quitTour('slow'));
+                delay(licensed || isPreviewMode ? 1 : 1000).then(() => quitTour('slow'));
 
             } else {
                 quitTour('fast');
@@ -281,8 +282,8 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                         if (opacity < 1) $('.cell').fadeTo('fast', opacity, () => { });
 
                     } else {
-                        // target object exists
-                        if (opacity < 1) {
+                        // target object exists && if != isPreviewMode
+                        if (opacity < 1 && !isPreviewMode) {
                             $(fadeSelector).fadeTo('fast', 1, () => { });
                             $('.cell').not(fadeSelector).fadeTo('fast', opacity, () => { });
                         }
