@@ -386,7 +386,7 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
                             expression: 'optional'
                         }
                     ])
-                    , subSection('Tooltips Texts & Colors', [
+                    , subSection('Tooltips Appearance', [
                         {
                             label: 'Text for Next button',
                             type: 'string',
@@ -436,7 +436,24 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
                             max: 20,
                             step: 4,
                             defaultValue: 16
-                        }
+                        },
+                        {
+                            type: "number",
+                            component: "slider",
+                            label: function (arg) { return 'Tooltip Border ' + arg.pTooltipBorder + 'px' },
+                            ref: 'pTooltipBorder',
+                            min: 0,
+                            max: 5,
+                            step: 1,
+                            defaultValue: 0
+                        },
+                        {
+                            label: 'Default tooltip border color',
+                            type: 'string',
+                            ref: 'pTooltipBorderColor',
+                            defaultValue: '#e0e0e0',
+                            expression: 'optional'
+                        },
                     ])
                     , subSection('Auto-launch Settings (Tour)\u2605', [
                         {
