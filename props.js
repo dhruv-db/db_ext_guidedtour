@@ -405,14 +405,14 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
                             label: 'Default tooltip font color',
                             type: 'string',
                             ref: 'pFontColor',
-                            defaultValue: '#e0e0e0',
+                            defaultValue: '#000000',
                             expression: 'optional'
                         },
                         {
                             label: 'Default tooltip backgr-color',
                             type: 'string',
                             ref: 'pBgColor',
-                            defaultValue: 'rgba(0,0,0,0.9)',
+                            defaultValue: '#fbfbfb',
                             expression: 'optional'
                         },
                         {
@@ -445,13 +445,13 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
                             min: 0,
                             max: 5,
                             step: 1,
-                            defaultValue: 0
+                            defaultValue: 2
                         },
                         {
                             label: 'Default tooltip border color',
                             type: 'string',
                             ref: 'pTooltipBorderColor',
-                            defaultValue: '#e0e0e0',
+                            defaultValue: 'rgba(0, 0, 0, 0.15)',
                             expression: 'optional'
                         },
                     ])
