@@ -92,7 +92,11 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                 tooltip.width += arrowHeadSize;
                 tooltip.right = target.right + target.width + arrowHeadSize;
                 tooltip.top = Math.min(Math.max(pointTo.top - tooltip.height / 2, 0), screen.height - tooltip.height - 10); // fix if bottom edge of tooltip would be below screen
-                tooltip.arrow = `<div class="guided-tour-arrowhead" orientation="${orientation}"
+                tooltip.arrow = `  <div class="guided-tour-arrowhead-border" orientation="${orientation}"
+                style="border-color: rgba(0,0,0,0) rgba(0,0,0,0) rgba(0,0,0,0) ${layout.pTooltipBorderColor}; border-style:solid; 
+                border-width:${arrowHeadSize}px; position:absolute; right:${(-2 * arrowHeadSize + 1) - layout.pTooltipBorder}px; top:${pointTo.top - tooltip.top - arrowHeadSize}px">
+            </div>
+                    <div class="guided-tour-arrowhead" orientation="${orientation}"
                         style="border-color: rgba(0,0,0,0) rgba(0,0,0,0) rgba(0,0,0,0) ${bgColor}; border-style:solid; 
                         border-width:${arrowHeadSize}px; position:absolute; right:${-2 * arrowHeadSize + 1}px; top:${pointTo.top - tooltip.top - arrowHeadSize}px">
                     </div>`;
@@ -103,7 +107,11 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                 tooltip.width += arrowHeadSize;
                 tooltip.left = Math.min(target.left + target.width + arrowHeadSize, screen.width - tooltip.width - 15);
                 tooltip.top = Math.min(Math.max(pointTo.top - tooltip.height / 2, 0), screen.height - tooltip.height - 10);
-                tooltip.arrow = `<div class="guided-tour-arrowhead" orientation="${orientation}"
+                tooltip.arrow = `<div class="guided-tour-arrowhead-border" orientation="${orientation}"
+                style="border-color: rgba(0,0,0,0) ${layout.pTooltipBorderColor} rgba(0,0,0,0) rgba(0,0,0,0); border-style:solid; 
+                border-width:${arrowHeadSize}px; position:absolute; left:${(-2 * arrowHeadSize + 1) - layout.pTooltipBorder}px; top:${pointTo.top - tooltip.top - arrowHeadSize}px">
+            </div>
+                    <div class="guided-tour-arrowhead" orientation="${orientation}"
                         style="border-color: rgba(0,0,0,0) ${bgColor} rgba(0,0,0,0) rgba(0,0,0,0); border-style:solid; 
                         border-width:${arrowHeadSize}px; position:absolute; left:${-2 * arrowHeadSize + 1}px; top:${pointTo.top - tooltip.top - arrowHeadSize}px">
                     </div>`;
@@ -114,7 +122,11 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                 tooltip.height += arrowHeadSize;
                 tooltip.top = Math.max(target.top - tooltip.height - arrowHeadSize, 0);
                 tooltip.left = Math.min(Math.max(pointTo.left - tooltip.width / 2, 0), screen.width - tooltip.width - 15);
-                tooltip.arrow = `<div class="guided-tour-arrowhead" orientation="${orientation}"
+                tooltip.arrow = `<div class="guided-tour-arrowhead-border" orientation="${orientation}"
+                style="border-color: ${layout.pTooltipBorderColor} rgba(0,0,0,0) rgba(0,0,0,0) rgba(0,0,0,0); border-style:solid; 
+                border-width:${arrowHeadSize}px; position:absolute; left:${pointTo.left - tooltip.left - arrowHeadSize}px; bottom:${(-2 * arrowHeadSize + 1) - layout.pTooltipBorder}px;">
+             </div>
+                    <div class="guided-tour-arrowhead" orientation="${orientation}"
                        style="border-color: ${bgColor} rgba(0,0,0,0) rgba(0,0,0,0) rgba(0,0,0,0); border-style:solid; 
                        border-width:${arrowHeadSize}px; position:absolute; left:${pointTo.left - tooltip.left - arrowHeadSize}px; bottom:${-2 * arrowHeadSize + 1}px;">
                     </div>`;
@@ -125,7 +137,11 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                 tooltip.height += arrowHeadSize;
                 tooltip.left = Math.min(Math.max(pointTo.left - tooltip.width / 2, 0), screen.width - tooltip.width - 15);
                 tooltip.bottom = Math.max(target.bottom - tooltip.height - arrowHeadSize, 0);
-                tooltip.arrow = `<div class="guided-tour-arrowhead" orientation="${orientation}"
+                tooltip.arrow = `<div class="guided-tour-arrowhead-border" orientation="${orientation}"
+                style="border-color: rgba(0,0,0,0) rgba(0,0,0,0) ${layout.pTooltipBorderColor} rgba(0,0,0,0); border-style:solid; 
+                border-width:${arrowHeadSize}px; position:absolute; left:${pointTo.left - tooltip.left - arrowHeadSize}px; top:${(-2 * arrowHeadSize + 1) - layout.pTooltipBorder}px;">
+            </div>
+                    <div class="guided-tour-arrowhead" orientation="${orientation}"
                         style="border-color: rgba(0,0,0,0) rgba(0,0,0,0) ${bgColor} rgba(0,0,0,0); border-style:solid; 
                         border-width:${arrowHeadSize}px; position:absolute; left:${pointTo.left - tooltip.left - arrowHeadSize}px; top:${-2 * arrowHeadSize + 1}px;">
                     </div>`;
@@ -231,10 +247,10 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                 //const vizId = html.split(' ').length == 1 ? html : null; // instead of html text it could be an object id of a chart to be rendered
                 const vizId = null;
 
-                var tooltipStyle = `width:${layout.pDefaultWidth}px;color:${layout.pFontColor};background-color:${layout.pBgColor}`;
+                var tooltipStyle = `width:${layout.pDefaultWidth}px;color:${layout.pFontColor};background-color:${layout.pBgColor};border:${layout.pTooltipBorder}PX solid ${layout.pTooltipBorderColor}`;
                 var tooltipCustomStyle = currElem.pCustomStyles;
                 // if custom css added in the props then it will overwrite common css
-                var CurrTolltipStyle = tooltipCustomStyle == '' ? tooltipStyle : `width:${layout.pDefaultWidth}px;color:${layout.pFontColor};background-color:${layout.pBgColor};` + currElem.pCustomStyles;
+                var CurrTolltipStyle = tooltipCustomStyle == '' ? tooltipStyle : `width:${layout.pDefaultWidth}px;color:${layout.pFontColor};background-color:${layout.pBgColor};border:${layout.pTooltipBorder}PX solid ${layout.pTooltipBorderColor}` + currElem.pCustomStyles;
 
                 var attr = {};
                 try {
