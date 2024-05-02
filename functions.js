@@ -92,14 +92,14 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                 tooltip.width += arrowHeadSize;
                 tooltip.right = target.right + target.width + arrowHeadSize;
                 tooltip.top = Math.min(Math.max(pointTo.top - tooltip.height / 2, 0), screen.height - tooltip.height - 10); // fix if bottom edge of tooltip would be below screen
-                tooltip.arrow = `  <div class="guided-tour-arrowhead-border" orientation="${orientation}"
+                tooltip.arrow = `<div><div class="guided-tour-arrowhead-border" orientation="${orientation}"
                 style="border-color: rgba(0,0,0,0) rgba(0,0,0,0) rgba(0,0,0,0) ${layout.pTooltipBorderColor}; border-style:solid; 
                 border-width:${arrowHeadSize}px; position:absolute; right:${(-2 * arrowHeadSize + 1) - layout.pTooltipBorder}px; top:${pointTo.top - tooltip.top - arrowHeadSize}px">
             </div>
                     <div class="guided-tour-arrowhead" orientation="${orientation}"
                         style="border-color: rgba(0,0,0,0) rgba(0,0,0,0) rgba(0,0,0,0) ${bgColor}; border-style:solid; 
                         border-width:${arrowHeadSize}px; position:absolute; right:${-2 * arrowHeadSize + 1}px; top:${pointTo.top - tooltip.top - arrowHeadSize}px">
-                    </div>`;
+                    </div></div>`;
             }
 
             if (orientation == 'r') { // arrow will be to the left
@@ -107,14 +107,14 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                 tooltip.width += arrowHeadSize;
                 tooltip.left = Math.min(target.left + target.width + arrowHeadSize, screen.width - tooltip.width - 15);
                 tooltip.top = Math.min(Math.max(pointTo.top - tooltip.height / 2, 0), screen.height - tooltip.height - 10);
-                tooltip.arrow = `<div class="guided-tour-arrowhead-border" orientation="${orientation}"
+                tooltip.arrow = `<div><div class="guided-tour-arrowhead-border" orientation="${orientation}"
                 style="border-color: rgba(0,0,0,0) ${layout.pTooltipBorderColor} rgba(0,0,0,0) rgba(0,0,0,0); border-style:solid; 
                 border-width:${arrowHeadSize}px; position:absolute; left:${(-2 * arrowHeadSize + 1) - layout.pTooltipBorder}px; top:${pointTo.top - tooltip.top - arrowHeadSize}px">
             </div>
                     <div class="guided-tour-arrowhead" orientation="${orientation}"
                         style="border-color: rgba(0,0,0,0) ${bgColor} rgba(0,0,0,0) rgba(0,0,0,0); border-style:solid; 
                         border-width:${arrowHeadSize}px; position:absolute; left:${-2 * arrowHeadSize + 1}px; top:${pointTo.top - tooltip.top - arrowHeadSize}px">
-                    </div>`;
+                    </div></div>`;
             }
 
             if (orientation == 't' || orientation == 't!') {  // arrow will be at the buttom
@@ -122,14 +122,14 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                 tooltip.height += arrowHeadSize;
                 tooltip.top = Math.max(target.top - tooltip.height - arrowHeadSize, 0);
                 tooltip.left = Math.min(Math.max(pointTo.left - tooltip.width / 2, 0), screen.width - tooltip.width - 15);
-                tooltip.arrow = `<div class="guided-tour-arrowhead-border" orientation="${orientation}"
+                tooltip.arrow = `<div><div class="guided-tour-arrowhead-border" orientation="${orientation}"
                 style="border-color: ${layout.pTooltipBorderColor} rgba(0,0,0,0) rgba(0,0,0,0) rgba(0,0,0,0); border-style:solid; 
                 border-width:${arrowHeadSize}px; position:absolute; left:${pointTo.left - tooltip.left - arrowHeadSize}px; bottom:${(-2 * arrowHeadSize + 1) - layout.pTooltipBorder}px;">
              </div>
                     <div class="guided-tour-arrowhead" orientation="${orientation}"
                        style="border-color: ${bgColor} rgba(0,0,0,0) rgba(0,0,0,0) rgba(0,0,0,0); border-style:solid; 
                        border-width:${arrowHeadSize}px; position:absolute; left:${pointTo.left - tooltip.left - arrowHeadSize}px; bottom:${-2 * arrowHeadSize + 1}px;">
-                    </div>`;
+                    </div></div>`;
             }
 
             if (orientation == 'b' || orientation == 'b!') {  // arrow will be at the top
@@ -137,14 +137,14 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                 tooltip.height += arrowHeadSize;
                 tooltip.left = Math.min(Math.max(pointTo.left - tooltip.width / 2, 0), screen.width - tooltip.width - 15);
                 tooltip.bottom = Math.max(target.bottom - tooltip.height - arrowHeadSize, 0);
-                tooltip.arrow = `<div class="guided-tour-arrowhead-border" orientation="${orientation}"
+                tooltip.arrow = `<div><div class="guided-tour-arrowhead-border" orientation="${orientation}"
                 style="border-color: rgba(0,0,0,0) rgba(0,0,0,0) ${layout.pTooltipBorderColor} rgba(0,0,0,0); border-style:solid; 
                 border-width:${arrowHeadSize}px; position:absolute; left:${pointTo.left - tooltip.left - arrowHeadSize}px; top:${(-2 * arrowHeadSize + 1) - layout.pTooltipBorder}px;">
             </div>
                     <div class="guided-tour-arrowhead" orientation="${orientation}"
                         style="border-color: rgba(0,0,0,0) rgba(0,0,0,0) ${bgColor} rgba(0,0,0,0); border-style:solid; 
                         border-width:${arrowHeadSize}px; position:absolute; left:${pointTo.left - tooltip.left - arrowHeadSize}px; top:${-2 * arrowHeadSize + 1}px;">
-                    </div>`;
+                    </div></div>`;
             }
         }
 
@@ -325,7 +325,7 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                     <div class="lui-tooltip  guided-tour-toolip-parent" id="${ownId}_tooltip" style="${CurrTolltipStyle};display:none;position:absolute;">
                         <!--${selector}-->
                         <span style="opacity:0.6;">${tooltipNo + 1}/${guided_tour_global.tooltipsCache[ownId].length}</span>
-                        <span class="lui-icon  lui-icon--close" style="float:right;cursor:pointer;${layout.pLaunchMode == 'hover' ? 'opacity:0;' : ''}" id="${ownId}_quit"></span>
+                        <span class="lui-icon  lui-icon--close" style="float:right;cursor:pointer;${layout.pLaunchMode == 'hover' && !isPreviewMode ? 'display:none;' : ''}" id="${ownId}_quit"></span>
                         ${knownObjId == 0 ? '<br/><div class="guided-tour-err">Object <strong>' + qObjId + '</strong> not found!</div>' : '<br/>'}
                         ${knownObjId > 1 ? '<br/><div class="guided-tour-err"><strong>' + qObjId + '</strong> selects ' + knownObjId + ' objects!</div>' : '<br/>'}
                         <div style="margin-top:10px;" id="${ownId}_text">
@@ -355,7 +355,7 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                     $(`#${ownId}_next`).css('color', fontColor); // set the a-tag button's font color
 
                     // register click trigger for "X" (quit) and Next/Done button
-                    $(`#${ownId}_quit`).click(() => play3(ownId, layout, tooltipNo, true, enigma, guided_tour_global, currSheet, isPreviewMode, lStorageKey, lStorageVal));
+                    $(`#${ownId}_quit`).click(() => layout.pLaunchMode == 'hover' ? $(`#${ownId}_tooltip`).remove() : play3(ownId, layout, tooltipNo, true, enigma, guided_tour_global, currSheet, isPreviewMode, lStorageKey, lStorageVal));
                     $(`#${ownId}_next`).click(() => play3(ownId, layout, tooltipNo + 1, isLast, enigma, guided_tour_global, currSheet, isPreviewMode, lStorageKey, lStorageVal));
 
                     const calcPositions = findPositions2(selector, rootContainer, `#${ownId}_tooltip`, layout, bgColor, orientation);
