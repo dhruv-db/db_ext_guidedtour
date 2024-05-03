@@ -1,5 +1,5 @@
-define(["qlik", "jquery", "text!./styles.css", "./props", "./functions", "./license"], function
-    (qlik, $, cssContent, props, functions, license) {
+define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips", "./license", "./qlik-css-selectors"], function
+    (qlik, $, cssContent, props, tooltips, license, qlikCss) {
 
     'use strict';
 
@@ -103,7 +103,7 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./functions", "./lice
             const enigma = app.model.enigmaModel
             const licensed = guided_tour_global.licensedObjs[ownId];
             const mode = qlik.navigation.getMode();
-            const rootContainer = '#qv-page-container'; /*layout.pParentContainer */
+            const rootContainer = qlikCss.v(0).pageContainer;
 
             if (mode != 'edit') $('.guided-tour-picker').remove();
             if (layout.pConsoleLog) console.log(ownId, 'resize', layout, guided_tour_global);
@@ -114,7 +114,7 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./functions", "./lice
                 // get the target-selector from a html comment inside the tooltip
                 const oldSelector = $(`#${ownId}_tooltip`).html().split('-->')[0].split('<!--')[1] || '';
                 const oldOrient = $(`#${ownId}_tooltip`).attr("orient");
-                const calcPositions = functions.findPositions2(oldSelector, rootContainer, `#${ownId}_tooltip`
+                const calcPositions = tooltips.findPositions2(oldSelector, rootContainer, `#${ownId}_tooltip`
                     , layout, $(`#${ownId}_tooltip`).css('background-color'), oldOrient);
                 $(`#${ownId}_tooltip`)
                     .css('left', calcPositions.left).css('right', calcPositions.right)  // left or right
@@ -149,7 +149,7 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./functions", "./lice
             if (!Object(guided_tour_global.activeTooltip[currSheet]).hasOwnProperty(ownId)) {
                 guided_tour_global.activeTooltip[currSheet][ownId] = -2;  // initialize in the global guided_tour_global.activeTooltip array this tour. -2 is: not started
             }
-            closeOtherTourObj();
+            closeOtherTourObj(ownId, currSheet);
             // console.log(guided_tour_global.activeTooltip);
             const switchPosition = $('#' + ownId + '_hovermode').is(':checked') ? 'checked' : '';
 
@@ -169,15 +169,11 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./functions", "./lice
                     <div id="${ownId}_start" style="${layout.pLaunchMode == 'hover' ? '' : 'cursor:pointer;'} text-align:center;${layout.pMoreStyles}">
                         <span class="lui-icon  lui-icon--large  ${getActiveTour(ownId, currSheet, layout) == ownId ? 'lui-icon--reload  guided-tour-rotate' : 'lui-icon--play'}" style="${!layout.pShowIcon || layout.pLaunchMode == 'hover' ? 'display:none;' : ''}" id="${ownId}_play"></span> 
                         ${layout.pTextStart}
-                    </div>
-                    <!--div id="${ownId}_test" style="${layout.pLaunchMode == 'hover' ? '' : 'cursor:pointer;'} text-align:center;${layout.pMoreStyles}">
-                        TEST
-                    </div-->
-                    
+                    </div>                    
                 </div>
             `);
 
-            $(`[tid="${ownId}"] .qv-inner-object`).css('background-color', layout.pExtensionBgColor); // set bg-color in Sense Client
+            $(`[tid="${ownId}"] ${qlikCss.v(0).innerObject}`).css('background-color', layout.pExtensionBgColor); // set bg-color in Sense Client
 
             guided_tour_global.licensedObjs[ownId] = license.chkLicenseJson(layout.pLicenseJSON, 'db_ext_guided_tour');
             const licensed = guided_tour_global.licensedObjs[ownId];
@@ -191,10 +187,10 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./functions", "./lice
                 $(`#${ownId}_start`).click(function () {
                     if (!getActiveTour(ownId, currSheet, layout)) {
 
-                        // functions.cacheHypercube(ownId, enigma, objFieldName, layout.pTourField, layout.pTourSelectVal)
+                        // tooltips.cacheHypercube(ownId, enigma, objFieldName, layout.pTourField, layout.pTourSelectVal)
                         //     .then(function (hcube) {
-                        //guided_tour_global.tooltipsCache[ownId] = layout.pTourItems;
-                        functions.play3(ownId, layout, 0, false, enigma, guided_tour_global, currSheet);
+                        guided_tour_global.tooltipsCache[ownId] = layout.pTourItems;
+                        tooltips.play3(ownId, layout, 0, false, enigma, guided_tour_global, currSheet);
                         // })
                         // .catch(function () { });
                     }
@@ -206,12 +202,12 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./functions", "./lice
                 $(`#${ownId}_hovermode`).click(function () {
                     if (!licensed) {
                         $(`#${ownId}_hovermode`).prop('checked', false);
-                        functions.leonardoMsg(ownId, 'Guided-Tour Extension', noLicenseMsg('Mouse-over'), null, 'OK');
+                        tooltips.leonardoMsg(ownId, 'Guided-Tour Extension', noLicenseMsg('Mouse-over'), null, 'OK');
                     } else {
                         const hoverModeSwitch = $(`#${ownId}_hovermode`).is(':checked');
                         if (hoverModeSwitch == true) {
                             console.log(`switch tour ${ownId} to "on"`);
-                            //functions.cacheHypercube(ownId, enigma, objFieldName, layout.pTourField, layout.pTourSelectVal)
+                            //tooltips.cacheHypercube(ownId, enigma, objFieldName, layout.pTourField, layout.pTourSelectVal)
                             //    .then(function (hcube) {
                             //guided_tour_global.tooltipsCache[ownId] = hcube;
                             guided_tour_global.tooltipsCache[ownId].forEach((tooltipDef, tooltipNo) => {
@@ -222,12 +218,12 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./functions", "./lice
                                 newDiv
                                     .on('click', () => {
                                         if ($('#' + ownId + '_tooltip').length == 0) {
-                                            functions.play3(ownId, layout, tooltipNo, false, enigma, guided_tour_global, currSheet, false);
+                                            tooltips.play3(ownId, layout, tooltipNo, false, enigma, guided_tour_global, currSheet, false);
                                         }
                                     })
                                     .on('mouseover', () => {
                                         if ($('#' + ownId + '_tooltip').length == 0) {
-                                            functions.play3(ownId, layout, tooltipNo, false, enigma, guided_tour_global, currSheet, false);
+                                            tooltips.play3(ownId, layout, tooltipNo, false, enigma, guided_tour_global, currSheet, false);
                                         }
                                     })
                                     .on('mouseout', () => {
@@ -239,7 +235,7 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./functions", "./lice
                                 // $('[tid="' + divId + '"]')
                                 //     .on('mouseover', () => {
                                 //         if ($('#' + ownId + '_tooltip').length == 0) {  // tooltip is not yet open
-                                //             functions.play3(ownId, layout, tooltipNo, false, enigma, guided_tour_global, currSheet, false);
+                                //             tooltips.play3(ownId, layout, tooltipNo, false, enigma, guided_tour_global, currSheet, false);
                                 //         }
                                 //     })
                                 //     .on('mouseout', () => {
@@ -271,10 +267,10 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./functions", "./lice
                      //---------------------------------------------------
                      // Auto-lauch always ... plays entire tour automatically once per session
                      if (mode == 'analysis' && !guided_tour_global.visitedTours[ownId] && !getActiveTour(ownId, currSheet, layout)) {
-                         functions.cacheHypercube(ownId, enigma, objFieldName, layout.pTourField, layout.pTourSelectVal)
+                         tooltips.cacheHypercube(ownId, enigma, objFieldName, layout.pTourField, layout.pTourSelectVal)
                              .then(function (hcube) {
                                  guided_tour_global.tooltipsCache[ownId] = hcube;
-                                 functions.play3(ownId, layout, 0, false, enigma, guided_tour_global, currSheet);
+                                 tooltips.play3(ownId, layout, 0, false, enigma, guided_tour_global, currSheet);
                                  guided_tour_global.visitedTours[ownId] = true;
                              })
                              .catch(function () { });
@@ -282,10 +278,10 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./functions", "./lice
                      // on click, tour will be restarted.
                      $(`#${ownId}_start`).click(function () {
                          if (!getActiveTour(ownId, currSheet, layout)) {
-                             functions.cacheHypercube(ownId, enigma, objFieldName, layout.pTourField, layout.pTourSelectVal)
+                             tooltips.cacheHypercube(ownId, enigma, objFieldName, layout.pTourField, layout.pTourSelectVal)
                                  .then(function (hcube) {
                                      guided_tour_global.tooltipsCache[ownId] = hcube;
-                                     functions.play3(ownId, layout, 0, false, enigma, guided_tour_global, currSheet);
+                                     tooltips.play3(ownId, layout, 0, false, enigma, guided_tour_global, currSheet);
                                      guided_tour_global.visitedTours[ownId] = true;
                                  })
                                  .catch(function () { });
@@ -302,10 +298,10 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./functions", "./lice
                              if (serverTime >= layout.pRelaunchAfter
                                  && layout.pRelaunchAfter > lStorageValue.openedAt) {
                                  if (licensed) {
-                                     functions.cacheHypercube(ownId, enigma, objFieldName, layout.pTourField, layout.pTourSelectVal)
+                                     tooltips.cacheHypercube(ownId, enigma, objFieldName, layout.pTourField, layout.pTourSelectVal)
                                          .then(function (hcube) {
                                              guided_tour_global.tooltipsCache[ownId] = hcube;
-                                             functions.play3(ownId, layout, 0, false, enigma, guided_tour_global, currSheet);
+                                             tooltips.play3(ownId, layout, 0, false, enigma, guided_tour_global, currSheet);
                                              lStorageValue.openedAt = serverTime + ''; // save as string
                                              window.localStorage.setItem(lStorageKey, JSON.stringify(lStorageValue));
                                              if (layout.pConsoleLog) console.log(ownId, 'Stored locally: ', JSON.stringify(lStorageValue));
@@ -314,7 +310,7 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./functions", "./lice
                                  } else {
                                      if (layout.pConsoleLog) console.log(ownId, 'auto-once suppressed because no license');
                                      if (!guided_tour_global.noLicenseWarning[ownId]) {
-                                         functions.leonardoMsg(ownId, 'Guided-Tour Extension', noLicenseMsg('Auto-launch Once'), null, 'OK');
+                                         tooltips.leonardoMsg(ownId, 'Guided-Tour Extension', noLicenseMsg('Auto-launch Once'), null, 'OK');
                                      }
                                      guided_tour_global.noLicenseWarning[ownId] = true;
                                  }
@@ -329,10 +325,10 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./functions", "./lice
                      // on click, tour will be restarted.
                      $(`#${ownId}_start`).click(function () {
                          if (!getActiveTour(ownId, currSheet, layout)) {
-                             functions.cacheHypercube(ownId, enigma, objFieldName, layout.pTourField, layout.pTourSelectVal)
+                             tooltips.cacheHypercube(ownId, enigma, objFieldName, layout.pTourField, layout.pTourSelectVal)
                                  .then(function (hcube) {
                                      guided_tour_global.tooltipsCache[ownId] = hcube;
-                                     functions.play3(ownId, layout, 0, false, enigma, guided_tour_global, currSheet);
+                                     tooltips.play3(ownId, layout, 0, false, enigma, guided_tour_global, currSheet);
                                      enigma.evaluate("=TimeStamp(Now(),'YYYYMMDDhhmmss')").then(function (serverTime) {
                                          const lStorageValue = JSON.parse(window.localStorage.getItem(lStorageKey) || lStorageDefault);
                                          lStorageValue.openedAt = serverTime + ''; // save as string
@@ -353,19 +349,19 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./functions", "./lice
                              const lStorageValue = JSON.parse(window.localStorage.getItem(lStorageKey) || lStorageDefault);
                              // function (ownId, enigma, backendApi, objFieldName, tourFieldName, tourFieldVal, timestampFieldName, lStorageVal)
                              // console.log(ownId, 'starting in mode auto-once-p-obj', layout.pTimestampFromDim, lStorageValue)
-                             functions.cacheHypercube(ownId, enigma, objFieldName, layout.pTourField, layout.pTourSelectVal
+                             tooltips.cacheHypercube(ownId, enigma, objFieldName, layout.pTourField, layout.pTourSelectVal
                                  , layout.pTimestampFromDim, lStorageValue)
                                  .then(function (hcube) {
                                      guided_tour_global.tooltipsCache[ownId] = hcube;
                                      if (guided_tour_global.tooltipsCache[ownId].length > 0) {
-                                         functions.play3(ownId, layout, 0, false, enigma, guided_tour_global, currSheet, lStorageKey, lStorageValue);
+                                         tooltips.play3(ownId, layout, 0, false, enigma, guided_tour_global, currSheet, lStorageKey, lStorageValue);
                                      }
                                  })
                                  .catch(function () { });
                          } else {
                              if (layout.pConsoleLog) console.log(ownId, 'auto-once-p-obj suppressed because no license');
                              if (!guided_tour_global.noLicenseWarning[ownId]) {
-                                 functions.leonardoMsg(ownId, 'Guided-Tour Extension', noLicenseMsg("Auto-launch Once Per Tooltip"), null, 'OK');
+                                 tooltips.leonardoMsg(ownId, 'Guided-Tour Extension', noLicenseMsg("Auto-launch Once Per Tooltip"), null, 'OK');
                              }
                              guided_tour_global.noLicenseWarning[ownId] = true;
                          }
@@ -376,10 +372,10 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./functions", "./lice
                      // on click, tour will be restarted.
                      $(`#${ownId}_start`).click(function () {
                          if (!getActiveTour(ownId, currSheet, layout)) {
-                             functions.cacheHypercube(ownId, enigma, objFieldName, layout.pTourField, layout.pTourSelectVal)
+                             tooltips.cacheHypercube(ownId, enigma, objFieldName, layout.pTourField, layout.pTourSelectVal)
                                  .then(function (hcube) {
                                      guided_tour_global.tooltipsCache[ownId] = hcube;
-                                     functions.play3(ownId, layout, 0, false, enigma, guided_tour_global, currSheet);
+                                     tooltips.play3(ownId, layout, 0, false, enigma, guided_tour_global, currSheet);
                                  })
                                  .catch(function () { });
                          }
