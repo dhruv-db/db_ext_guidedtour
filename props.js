@@ -1,9 +1,9 @@
 // props.js: Extension properties (accordeon menu) externalized
 
-define(["qlik", "jquery", "./functions", "./license", "./picker", "./qlik-css-selectors"], function
-    (qlik, $, functions, license, picker, qlikCss) {
+define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-selectors"], function
+    (qlik, $, tooltips, license, picker, qlikCss) {
 
-    const ext = 'db_ext_guided_tour_3';
+    //const ext = 'db_ext_guided_tour_3';
     const ppSection = qlikCss.v(0).ppSection; // class for accordeons top <div>
     const ppNmDi = qlikCss.v(0).ppNmDi; // class for sub-accordeons <li>
     const ppNmDi_Content = qlikCss.v(0).ppNmDi_Content; // class for <div> inside ppNmDi that should get the click event
@@ -97,7 +97,7 @@ define(["qlik", "jquery", "./functions", "./license", "./picker", "./qlik-css-se
 
             return {
                 label: function (arg) {
-                    console.log('rendering tourItems label', arg.pTourItems);
+                    // console.log('rendering tourItems label', arg.pTourItems);
                     const domPos = getTourItemsSectionPos();
                     //$(`.pp-accordion-container [tid="1"] .pp-nm-di__header-content`)
                     if (domPos) {
@@ -183,7 +183,7 @@ define(["qlik", "jquery", "./functions", "./license", "./picker", "./qlik-css-se
                                         var isPreviewMode = true;
                                         // put current properties into tooltipsCache
                                         guided_tour_global.tooltipsCache[context.properties.qInfo.qId] = JSON.parse(JSON.stringify(context.properties.pTourItems));
-                                        functions.play3(
+                                        tooltips.play3(
                                             context.properties.qInfo.qId, context.layout, itemPos, false, enigma,
                                             guided_tour_global, currSheet, isPreviewMode);
                                     }
@@ -200,7 +200,7 @@ define(["qlik", "jquery", "./functions", "./license", "./picker", "./qlik-css-se
                                             const cssSelector = `${ppSection}:nth-child(${domPos + 1}) ${ppNmDi}:nth-child(${itemPos + 1}) [tid="${inputRef}"] input`;
                                             // console.log('cssSelector', cssSelector);
                                             if ($(cssSelector).length > 0) {
-                                                picker.pickOne(context.properties.qInfo.qId, enigma, itemPos);
+                                                picker.pickMany(context.properties.qInfo.qId, enigma, itemPos, context.properties.pTourItems);
 
                                             } else {
                                                 alert('Cannot find the "Tooltip Items" text in DOM model. Invalid css selector:', cssSelector);
@@ -240,6 +240,25 @@ define(["qlik", "jquery", "./functions", "./license", "./picker", "./qlik-css-se
                                                 maxlength: 4000,
                                                 expression: 'optional',
                                             },
+                                            orientation: {
+                                                ref: "orientation",
+                                                label: "Orientation",
+                                                type: 'string', defaultValue: 'click',
+                                                component: 'dropdown',
+                                                defaultValue: "",
+                                                options: [
+                                                    {
+                                                        value: "",
+                                                        label: "automatic"
+                                                    }, {
+                                                        value: "h",
+                                                        label: "left or right"
+                                                    }, {
+                                                        value: "v",
+                                                        label: "above or below"
+                                                    }
+                                                ]
+                                            }
                                         }
                                     }
                                 }
@@ -266,9 +285,9 @@ define(["qlik", "jquery", "./functions", "./license", "./picker", "./qlik-css-se
                     {
                         label: 'Mode to launch tour',
                         type: 'string',
-                        component: 'dropdown',
                         ref: 'pLaunchMode',
                         defaultValue: 'click',
+                        component: 'dropdown',
                         options: [
                             {
                                 value: "click",
@@ -477,7 +496,7 @@ define(["qlik", "jquery", "./functions", "./license", "./picker", "./qlik-css-se
                             component: "button",
                             action: function (arg) {
                                 window.localStorage.removeItem(app.id + '|' + arg.qInfo.qId);
-                                functions.leonardoMsg(arg.qInfo.qId, 'Success', 'Removed local item', null, 'OK');
+                                tooltips.leonardoMsg(arg.qInfo.qId, 'Success', 'Removed local item', null, 'OK');
                             }
                         }
                     ], 'pLaunchMode', 'auto-once'  // only show settings section if pLaunchMode == 'auto-once'
@@ -507,7 +526,7 @@ define(["qlik", "jquery", "./functions", "./license", "./picker", "./qlik-css-se
                             component: "button",
                             action: function (arg) {
                                 window.localStorage.removeItem(app.id + '|' + arg.qInfo.qId);
-                                functions.leonardoMsg(arg.qInfo.qId, 'Success', 'Removed local item', null, 'OK');
+                                tooltips.leonardoMsg(arg.qInfo.qId, 'Success', 'Removed local item', null, 'OK');
                             }
                         }
                     ], 'pLaunchMode', 'auto-once-p-obj'  // only show settings section if pLaunchMode == 'auto-once-p-obj'
@@ -570,7 +589,7 @@ define(["qlik", "jquery", "./functions", "./license", "./picker", "./qlik-css-se
                             resolveProperty(arg.pLicenseJSON, enigma).then(function (lstr) {
                                 const hostname = arg.pTestHostname ? (arg.pTestHostname.length > 0 ? arg.pTestHostname : location.hostname) : location.hostname;
                                 const report = license.chkLicenseJson(lstr, 'db_ext_guided_tour', hostname, true);
-                                functions.leonardoMsg(ownId, 'Result', report, null, 'OK');
+                                tooltips.leonardoMsg(ownId, 'Result', report, null, 'OK');
                                 $('#msgparent_' + ownId + ' th').css('text-align', 'left');
                                 // make window wider
                                 if (report.length > 200) $('#msgparent_' + ownId + ' .lui-dialog').css('width', '700px');
@@ -583,7 +602,7 @@ define(["qlik", "jquery", "./functions", "./license", "./picker", "./qlik-css-se
 
         about: function (qext) {
             return {
-                label: 'ⓘ About this extension',
+                label: 'ℹ️ About this extension',
                 type: 'items',
                 items: [
                     {

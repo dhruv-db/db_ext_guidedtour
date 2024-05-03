@@ -1,7 +1,8 @@
-// functions.js: function play externalized 
+// tooltips.js: function play externalized 
 // Test Dhruv
 // Christof's comment
-define(["qlik", "jquery", "./license"], function (qlik, $, license) {
+define(["qlik", "jquery", "./license", "./qlik-css-selectors"], function
+    (qlik, $, license, qlikCss) {
 
     function isScrolledIntoView(elem) {
         var docViewTop = $(window).scrollTop();
@@ -62,7 +63,7 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
 
             var pointTo;
 
-            if (!prefOrient || prefOrient == 'h') {  // horizontal positioning (left or right) preferred
+            if (!prefOrient || ['h', 'l', 'r'].indexOf(prefOrient) > -1) {  // horizontal positioning (left or right) preferred
 
                 // decide between Left or Right positioning, depending where there is more free space left.
                 // if not enough free space to the left or right, then try "tb" (top or bottom)
@@ -70,7 +71,7 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                     (target.right > tooltip.width ? 'r' : 'tb')
                     : (target.left > tooltip.width ? 'l' : 'tb');
 
-                // if it is top or bottom orientation, decide depending on where there is more space left 
+                // if it is top or bottom orientati0on, decide depending on where there is more space left 
                 if (orientation == 'tb') {
                     orientation = target.top > target.bottom ? 't' : 'b';
                 }
@@ -92,13 +93,15 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                 tooltip.width += arrowHeadSize;
                 tooltip.right = target.right + target.width + arrowHeadSize;
                 tooltip.top = Math.min(Math.max(pointTo.top - tooltip.height / 2, 0), screen.height - tooltip.height - 10); // fix if bottom edge of tooltip would be below screen
-                tooltip.arrow = `<div><div class="guided-tour-arrowhead-border" orientation="${orientation}"
-                style="border-color: rgba(0,0,0,0) rgba(0,0,0,0) rgba(0,0,0,0) ${layout.pTooltipBorderColor}; border-style:solid; 
-                border-width:${arrowHeadSize}px; position:absolute; right:${(-2 * arrowHeadSize + 1) - layout.pTooltipBorder}px; top:${pointTo.top - tooltip.top - arrowHeadSize}px">
-            </div>
+                tooltip.arrow = `<div><div class="guided-tour-arrowhead" orientation="${orientation}"
+                        style="border-color: rgba(0,0,0,0) rgba(0,0,0,0) rgba(0,0,0,0) ${layout.pTooltipBorderColor}; border-style:solid; 
+                        border-width:${arrowHeadSize}px; position:absolute; right:${(-2 * arrowHeadSize + 1) - layout.pTooltipBorder}px; 
+                        top:${pointTo.top - tooltip.top - arrowHeadSize}px">
+                    </div>
                     <div class="guided-tour-arrowhead" orientation="${orientation}"
                         style="border-color: rgba(0,0,0,0) rgba(0,0,0,0) rgba(0,0,0,0) ${bgColor}; border-style:solid; 
-                        border-width:${arrowHeadSize}px; position:absolute; right:${-2 * arrowHeadSize + 1}px; top:${pointTo.top - tooltip.top - arrowHeadSize}px">
+                        border-width:${arrowHeadSize}px; position:absolute; right:${-2 * arrowHeadSize + 1}px; 
+                        top:${pointTo.top - tooltip.top - arrowHeadSize}px">
                     </div></div>`;
             }
 
@@ -107,13 +110,15 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                 tooltip.width += arrowHeadSize;
                 tooltip.left = Math.min(target.left + target.width + arrowHeadSize, screen.width - tooltip.width - 15);
                 tooltip.top = Math.min(Math.max(pointTo.top - tooltip.height / 2, 0), screen.height - tooltip.height - 10);
-                tooltip.arrow = `<div><div class="guided-tour-arrowhead-border" orientation="${orientation}"
-                style="border-color: rgba(0,0,0,0) ${layout.pTooltipBorderColor} rgba(0,0,0,0) rgba(0,0,0,0); border-style:solid; 
-                border-width:${arrowHeadSize}px; position:absolute; left:${(-2 * arrowHeadSize + 1) - layout.pTooltipBorder}px; top:${pointTo.top - tooltip.top - arrowHeadSize}px">
-            </div>
+                tooltip.arrow = `<div><div class="guided-tour-arrowhead" orientation="${orientation}"
+                        style="border-color: rgba(0,0,0,0) ${layout.pTooltipBorderColor} rgba(0,0,0,0) rgba(0,0,0,0); border-style:solid; 
+                        border-width:${arrowHeadSize}px; position:absolute; left:${(-2 * arrowHeadSize + 1) - layout.pTooltipBorder}px; 
+                        top:${pointTo.top - tooltip.top - arrowHeadSize}px">
+                    </div>
                     <div class="guided-tour-arrowhead" orientation="${orientation}"
                         style="border-color: rgba(0,0,0,0) ${bgColor} rgba(0,0,0,0) rgba(0,0,0,0); border-style:solid; 
-                        border-width:${arrowHeadSize}px; position:absolute; left:${-2 * arrowHeadSize + 1}px; top:${pointTo.top - tooltip.top - arrowHeadSize}px">
+                        border-width:${arrowHeadSize}px; position:absolute; left:${-2 * arrowHeadSize + 1}px; 
+                        top:${pointTo.top - tooltip.top - arrowHeadSize}px">
                     </div></div>`;
             }
 
@@ -122,13 +127,15 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                 tooltip.height += arrowHeadSize;
                 tooltip.top = Math.max(target.top - tooltip.height - arrowHeadSize, 0);
                 tooltip.left = Math.min(Math.max(pointTo.left - tooltip.width / 2, 0), screen.width - tooltip.width - 15);
-                tooltip.arrow = `<div><div class="guided-tour-arrowhead-border" orientation="${orientation}"
-                style="border-color: ${layout.pTooltipBorderColor} rgba(0,0,0,0) rgba(0,0,0,0) rgba(0,0,0,0); border-style:solid; 
-                border-width:${arrowHeadSize}px; position:absolute; left:${pointTo.left - tooltip.left - arrowHeadSize}px; bottom:${(-2 * arrowHeadSize + 1) - layout.pTooltipBorder}px;">
-             </div>
+                tooltip.arrow = `<div><div class="guided-tour-arrowhead" orientation="${orientation}"
+                        style="border-color: ${layout.pTooltipBorderColor} rgba(0,0,0,0) rgba(0,0,0,0) rgba(0,0,0,0); border-style:solid; 
+                        border-width:${arrowHeadSize}px; position:absolute; left:${pointTo.left - tooltip.left - arrowHeadSize}px; 
+                        bottom:${(-2 * arrowHeadSize + 1) - layout.pTooltipBorder}px;">
+                    </div>
                     <div class="guided-tour-arrowhead" orientation="${orientation}"
                        style="border-color: ${bgColor} rgba(0,0,0,0) rgba(0,0,0,0) rgba(0,0,0,0); border-style:solid; 
-                       border-width:${arrowHeadSize}px; position:absolute; left:${pointTo.left - tooltip.left - arrowHeadSize}px; bottom:${-2 * arrowHeadSize + 1}px;">
+                       border-width:${arrowHeadSize}px; position:absolute; left:${pointTo.left - tooltip.left - arrowHeadSize}px; 
+                       bottom:${-2 * arrowHeadSize + 1}px;">
                     </div></div>`;
             }
 
@@ -137,19 +144,18 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                 tooltip.height += arrowHeadSize;
                 tooltip.left = Math.min(Math.max(pointTo.left - tooltip.width / 2, 0), screen.width - tooltip.width - 15);
                 tooltip.bottom = Math.max(target.bottom - tooltip.height - arrowHeadSize, 0);
-                tooltip.arrow = `<div><div class="guided-tour-arrowhead-border" orientation="${orientation}"
-                style="border-color: rgba(0,0,0,0) rgba(0,0,0,0) ${layout.pTooltipBorderColor} rgba(0,0,0,0); border-style:solid; 
-                border-width:${arrowHeadSize}px; position:absolute; left:${pointTo.left - tooltip.left - arrowHeadSize}px; top:${(-2 * arrowHeadSize + 1) - layout.pTooltipBorder}px;">
-            </div>
+                tooltip.arrow = `<div><div class="guided-tour-arrowhead" orientation="${orientation}"
+                        style="border-color: rgba(0,0,0,0) rgba(0,0,0,0) ${layout.pTooltipBorderColor} rgba(0,0,0,0); border-style:solid; 
+                        border-width:${arrowHeadSize}px; position:absolute; left:${pointTo.left - tooltip.left - arrowHeadSize}px; 
+                        top:${(-2 * arrowHeadSize + 1) - layout.pTooltipBorder}px;">
+                    </div>
                     <div class="guided-tour-arrowhead" orientation="${orientation}"
                         style="border-color: rgba(0,0,0,0) rgba(0,0,0,0) ${bgColor} rgba(0,0,0,0); border-style:solid; 
-                        border-width:${arrowHeadSize}px; position:absolute; left:${pointTo.left - tooltip.left - arrowHeadSize}px; top:${-2 * arrowHeadSize + 1}px;">
+                        border-width:${arrowHeadSize}px; position:absolute; left:${pointTo.left - tooltip.left - arrowHeadSize}px; 
+                        top:${-2 * arrowHeadSize + 1}px;">
                     </div></div>`;
             }
         }
-
-        // $('#kulimuk').remove();
-        // if (pointTo) $('#qv-page-container').append(`<div id="kulimuk" style="position:absolute;width:3px;height:3px;left:${pointTo.left}px;top:${pointTo.top}px;background-color:red;z-index:200;"></div>`);
 
         if (tooltip.left) tooltip.left += 'px';
         if (tooltip.right) tooltip.right += 'px';
@@ -162,7 +168,23 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
         return tooltip;
     }
 
+    function makeCssObject(styleAttribute) {
+        var styleDeclarations = styleAttribute ? styleAttribute.split(';') : [];
 
+        // Create an object to store the parsed CSS properties
+        var cssObject = {};
+
+        // Iterate over the array of style declarations
+        styleDeclarations.forEach(function (declaration) {
+            // Split each declaration into property and value
+            var parts = declaration.split(':');
+            if (parts.length === 2) {
+                // Trim the property and value and add them to the cssObject
+                cssObject[$.trim(parts[0])] = $.trim(parts[1]);
+            }
+        });
+        return cssObject;
+    }
 
 
     //    =========================================================================================
@@ -172,11 +194,13 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
 
         //=========================================================================================
         const arrowHeadSize = layout.pArrowHead || 16;
-        const rootContainer = guided_tour_global.isSingleMode ? '#qv-stage-container' : '#qv-page-container';
-        const finallyScrollTo = '#sheet-title';
+        const rootContainer = guided_tour_global.isSingleMode ? qlikCss.v(0).stageContainer : qlikCss.v(0).pageContainer;
+        const finallyScrollTo = qlikCss.v(0).sheetTitle;
         const opacity = layout.pLaunchMode == 'hover' ? 1 : (layout.pOpacity || 1);
         const licensed = guided_tour_global.licensedObjs[ownId];
         const isLast = tooltipNo >= (guided_tour_global.tooltipsCache[ownId].length - 1);
+
+        $('.guided-tour-picker').remove();  // remove picker buttons if still rendered
 
         if (layout.pConsoleLog) console.log(`${ownId} Play tour, tooltip ${tooltipNo} (isLast ${isLast}, licensed ${licensed}, lStorageKey ${lStorageKey})`);
 
@@ -247,20 +271,24 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                 //const vizId = html.split(' ').length == 1 ? html : null; // instead of html text it could be an object id of a chart to be rendered
                 const vizId = null;
 
-                var tooltipStyle = `width:${layout.pDefaultWidth}px;color:${layout.pFontColor};background-color:${layout.pBgColor};border:${layout.pTooltipBorder}PX solid ${layout.pTooltipBorderColor}`;
-                var tooltipCustomStyle = currElem.pCustomStyles;
+                var tooltipStyle =
+                    `width:${layout.pDefaultWidth}px;
+                    color:${layout.pFontColor};
+                    background-color:${layout.pBgColor};
+                    border:${layout.pTooltipBorder}px solid ${layout.pTooltipBorderColor}`;
+                // var tooltipCustomStyle = currElem.pCustomStyles;
                 // if custom css added in the props then it will overwrite common css
-                var CurrTolltipStyle = tooltipCustomStyle == '' ? tooltipStyle : `width:${layout.pDefaultWidth}px;color:${layout.pFontColor};background-color:${layout.pBgColor};border:${layout.pTooltipBorder}PX solid ${layout.pTooltipBorderColor}` + currElem.pCustomStyles;
+                // var CurrTolltipStyle = !tooltipCustomStyle ? tooltipStyle : `width:${layout.pDefaultWidth}px;color:${layout.pFontColor};background-color:${layout.pBgColor};border:${layout.pTooltipBorder}px solid ${layout.pTooltipBorderColor}` + currElem.pCustomStyles;
 
-                var attr = {};
-                try {
-                    if (currElem[2]) attr = JSON.parse(currElem[2].qText);  // if there is a 3rd dimension it is the attribute dimension.
-                    //if (layout.pAttrFromDim && currElem[layout.pAttrFromDim]) attr = JSON.parse(currElem[layout.pAttrFromDim].qText);
-                } catch (err) { };
-                if (attr.css) CurrTolltipStyle += attr.css;
+                // var attr = {};
+                // try {
+                //     if (currElem[2]) attr = JSON.parse(currElem[2].qText);  // if there is a 3rd dimension it is the attribute dimension.
+                //     //if (layout.pAttrFromDim && currElem[layout.pAttrFromDim]) attr = JSON.parse(currElem[layout.pAttrFromDim].qText);
+                // } catch (err) { };
+                // if (attr.css) CurrTolltipStyle += attr.css;
                 var fontColor;
                 var bgColor;
-                var orientation = attr.orient || null;
+                var orientation = currElem.orientation || null;
                 var dims;
                 var selector;
                 var selectorFormat; // will be "qlik-object", "qlik-container" or "css"
@@ -322,7 +350,7 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                     // add the tooltip div
 
                     $(rootContainer).append(`
-                    <div class="lui-tooltip  guided-tour-toolip-parent" id="${ownId}_tooltip" style="${CurrTolltipStyle};display:none;position:absolute;">
+                    <div class="lui-tooltip  guided-tour-toolip-parent" id="${ownId}_tooltip" style="${tooltipStyle};display:none;position:absolute;">
                         <!--${selector}-->
                         <span style="opacity:0.6;">${tooltipNo + 1}/${guided_tour_global.tooltipsCache[ownId].length}</span>
                         <span class="lui-icon  lui-icon--close" style="float:right;cursor:pointer;${layout.pLaunchMode == 'hover' && !isPreviewMode ? 'display:none;' : ''}" id="${ownId}_quit"></span>
@@ -334,6 +362,8 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                         <a class="lui-button  guided-tour-next" style="${layout.pLaunchMode == 'hover' ? 'opacity:0;' : ''}" id="${ownId}_next">${isLast ? layout.pTextDone : layout.pTextNext}</a>
                         <div class="lui-tooltip__arrow"></div>
                     </div>`);
+                    // add possible more styles
+                    $(`#${ownId}_tooltip`).css(makeCssObject(currElem.pCustomStyles));
 
                     if (vizId) {
                         const app = qlik.currApp();
@@ -355,8 +385,12 @@ define(["qlik", "jquery", "./license"], function (qlik, $, license) {
                     $(`#${ownId}_next`).css('color', fontColor); // set the a-tag button's font color
 
                     // register click trigger for "X" (quit) and Next/Done button
-                    $(`#${ownId}_quit`).click(() => layout.pLaunchMode == 'hover' ? $(`#${ownId}_tooltip`).remove() : play3(ownId, layout, tooltipNo, true, enigma, guided_tour_global, currSheet, isPreviewMode, lStorageKey, lStorageVal));
-                    $(`#${ownId}_next`).click(() => play3(ownId, layout, tooltipNo + 1, isLast, enigma, guided_tour_global, currSheet, isPreviewMode, lStorageKey, lStorageVal));
+                    $(`#${ownId}_quit`).click(() => {
+                        layout.pLaunchMode == 'hover' ? $(`#${ownId}_tooltip`).remove() : play3(ownId, layout, tooltipNo, true, enigma, guided_tour_global, currSheet, isPreviewMode, lStorageKey, lStorageVal)
+                    });
+                    $(`#${ownId}_next`).click(() => {
+                        play3(ownId, layout, tooltipNo + 1, isLast, enigma, guided_tour_global, currSheet, isPreviewMode, lStorageKey, lStorageVal)
+                    });
 
                     const calcPositions = findPositions2(selector, rootContainer, `#${ownId}_tooltip`, layout, bgColor, orientation);
 
