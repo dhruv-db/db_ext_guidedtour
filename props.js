@@ -1,12 +1,12 @@
 // props.js: Extension properties (accordeon menu) externalized
 
-define(["qlik", "jquery", "./functions", "./license", "./picker"], function
-    (qlik, $, functions, license, picker) {
+define(["qlik", "jquery", "./functions", "./license", "./picker", "./qlik-css-selectors"], function
+    (qlik, $, functions, license, picker, qlikCss) {
 
     const ext = 'db_ext_guided_tour_3';
-    const cssSel1 = '.pp-section'; // class for accordeons top <div>
-    const cssSel2 = '.pp-nm-di'; // class for sub-accordeons <li>
-    const cssSel3 = '.pp-nm-di__header-content'; // class for <div> inside cssSel2 that should get the click event
+    const ppSection = qlikCss.v(0).ppSection; // class for accordeons top <div>
+    const ppNmDi = qlikCss.v(0).ppNmDi; // class for sub-accordeons <li>
+    const ppNmDi_Content = qlikCss.v(0).ppNmDi_Content; // class for <div> inside ppNmDi that should get the click event
 
     function subSection(labelText, itemsArray, argKey, argVal) {
         var ret = {
@@ -69,7 +69,7 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
     function getTourItemsSectionPos() {
         var domPos = null;
         // now inspect the DOM model for CSS class 'pp-section' elements
-        $(cssSel1).each(function (i, e) {
+        $(ppSection).each(function (i, e) {
             // console.log('DOM:', i, '.pp-section', $(e)[0].innerText);
             domPos = $(e)[0].innerText.indexOf('Tooltip Items') >= 0 ? i : domPos
         })
@@ -97,18 +97,30 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
 
             return {
                 label: function (arg) {
-                    // console.log('rendering tourItems label', arg);
+                    console.log('rendering tourItems label', arg.pTourItems);
                     const domPos = getTourItemsSectionPos();
                     //$(`.pp-accordion-container [tid="1"] .pp-nm-di__header-content`)
                     if (domPos) {
-                        $(`${cssSel1}:nth-child(${domPos + 1}) ${cssSel3}`)
+                        // check all items if the selector is valid and
+                        arg.pTourItems.forEach((tourItem, i) => {
+                            const selector = tourItem.selector.split(':').splice(-1)[0];
+                            const accordeonElem = $(`${ppSection}:nth-child(${domPos + 1}) li:nth-child(${i + 1}) ${ppNmDi_Content}`);
+                            if ($(`[tid="${selector}"]`).length == 0) {
+                                // The given selector of that tour item is invalid
+                                accordeonElem.css("background", "#b98888").css("color", "white");
+                            } else {
+                                accordeonElem.css("background", "").css("color", "");
+                            }
+                        })
+
+                        $(`${ppSection}:nth-child(${domPos + 1}) ${ppNmDi_Content}`)
                             .not('[guided-tour-event="click"]')
                             //.css('border', 'gray 1px solid')
                             .attr('guided-tour-event', 'click')
                             .click(function (e) {
                                 console.log('guided-tour-click-item', $(e.currentTarget)[0].innerText);
                                 const selector = $(e.currentTarget)[0].innerText.split(':').splice(-1)[0];
-                                const closestInput = $(e.currentTarget);//.closest('li').find('[tid="selector"] .label');
+                                // const closestInput = $(e.currentTarget);//.closest('li').find('[tid="selector"] .label');
                                 if (selector) {
                                     const elem = $(`[tid="${selector}"]`);
                                     if (elem.length) {
@@ -118,10 +130,10 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
                                         }, 300, function () {
                                             elem.css('background-color', bgBefore);
                                         });
-                                        closestInput.css('border', '1px solid green');
+                                        // closestInput.css('border', '1px solid green');
                                     } else {
                                         // bad selector
-                                        closestInput.css('border', '2px solid red');
+                                        // closestInput.css('border', '2px solid red');
                                     }
                                 }
                             });
@@ -142,31 +154,17 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
                             selector: {
                                 ref: "selector",
                                 label: function (arg, context) {
-                                    var itemPos = getItemPos(arg, context);
-                                    // we "abuse" this function to hightlight for 1/3 second the
-                                    // object it refers to. 
-                                    // if (arg.selector) {
-                                    //     // put current properties into tooltipsCache
-                                    //     guided_tour_global.tooltipsCache[context.properties.qInfo.qId] = JSON.parse(JSON.stringify(context.properties.pTourItems));
-                                    //     functions.play3(context.properties.qInfo.qId, context.layout, itemPos, false, enigma,
-                                    //         guided_tour_global, currSheet);
-                                    // }
-
-                                    //const newHighlightedObj = arg.selector.split(':').slice(-1)[0];
-                                    // var highlightedObj = arg.selector.split(':').slice(-1)[0];
-                                    // if (arg.selector) {  // && highlightedObj != newHighlightedObj) {
-                                    //     //highlightedObj = newHighlightedObj
-                                    //     //console.log('rendering tour item', highlightedObj);
-                                    //     const elem = $(`[tid="${highlightedObj}"]`);
-                                    //     const bgBefore = 'rgba(0,0,0,0)'; // elem.css('background-color');
-                                    //     elem.animate({
-                                    //         backgroundColor: 'yellow'
-                                    //     }, 300, function () {
-                                    //         elem.css('background-color', bgBefore);
-                                    //     })
-                                    // }
-
-                                    return "CSS selector"
+                                    // var itemPos = getItemPos(arg, context);
+                                    var ret = "CSS selector"
+                                    const selector = arg.selector.split(':').splice(-1)[0];
+                                    if (selector) {
+                                        if ($(`[tid="${selector}"]`).length == 0) {
+                                            ret = "\u{1F534} " + ret + " (not found)"
+                                        } else {
+                                            ret = "\u{1F7E2}" + ret
+                                        }
+                                    }
+                                    return ret
                                 },
                                 type: "string"
                             },
@@ -199,7 +197,7 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
                                         const domPos = getTourItemsSectionPos();
                                         if (domPos) {
                                             //console.log('found in DOM', domPos);
-                                            const cssSelector = `${cssSel1}:nth-child(${domPos + 1}) ${cssSel2}:nth-child(${itemPos + 1}) [tid="${inputRef}"] input`;
+                                            const cssSelector = `${ppSection}:nth-child(${domPos + 1}) ${ppNmDi}:nth-child(${itemPos + 1}) [tid="${inputRef}"] input`;
                                             // console.log('cssSelector', cssSelector);
                                             if ($(cssSelector).length > 0) {
                                                 picker.pickOne(context.properties.qInfo.qId, enigma, itemPos);
@@ -208,7 +206,7 @@ define(["qlik", "jquery", "./functions", "./license", "./picker"], function
                                                 alert('Cannot find the "Tooltip Items" text in DOM model. Invalid css selector:', cssSelector);
                                             }
                                         } else {
-                                            alert('Cannot find the "Tooltip Items" text in DOM model. Invalid css selector:', cssSel1);
+                                            alert('Cannot find the "Tooltip Items" text in DOM model. Invalid css selector:', ppSection);
                                         }
                                     }
                                 }
