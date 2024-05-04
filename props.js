@@ -8,85 +8,6 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
     const ppNmDi = qlikCss.v(0).ppNmDi; // class for sub-accordeons <li>
     const ppNmDi_Content = qlikCss.v(0).ppNmDi_Content; // class for <div> inside ppNmDi that should get the click event
 
-    function subSection(labelText, itemsArray, argKey, argVal) {
-        var ret = {
-            component: 'expandable-items',
-            items: {}
-        };
-        var hash = 0;
-        for (var j = 0; j < labelText.length; j++) {
-            hash = ((hash << 5) - hash) + labelText.charCodeAt(j)
-            hash |= 0;
-        }
-        ret.items[hash] = {
-            label: labelText,
-            type: 'items',
-            show: function (arg) { return (argKey && argVal) ? (arg[argKey] == argVal) : true },
-            items: itemsArray
-        };
-        return ret;
-    }
-
-    function getDimNames(props, indexOrLabel) {
-        // returns the labels/field names of the Dimension in this qHyperCubeDef as an array of {value: #, label: ""}
-        var opt = [{ value: "", label: "- not assigned -" }];
-        var i = -1;
-        for (const dim of props.qHyperCubeDef.qDimensions) {
-            i++;
-            var label = dim.qDef.qFieldLabels[0].length == 0 ? dim.qDef.qFieldDefs[0] : dim.qDef.qFieldLabels[0];
-            if (label.substr(0, 1) == '=') label = label.substr(1);
-            if (i >= 2) opt.push({  // skip the first 2 dimensions
-                value: indexOrLabel == 'label' ? label : i,
-                label: label
-            });
-        }
-        return opt;
-    }
-    /*
-        function checkSortOrder(arg) {
-            const sortByLoadOrder = arg.qHyperCubeDef.qDimensions[0] ?
-                (arg.qHyperCubeDef.qDimensions[0].qDef.qSortCriterias[0].qSortByExpression == 0
-                    && arg.qHyperCubeDef.qDimensions[0].qDef.qSortCriterias[0].qSortByNumeric == 0
-                    && arg.qHyperCubeDef.qDimensions[0].qDef.qSortCriterias[0].qSortByAscii == 0) : false;
-            const interSort = arg.qHyperCubeDef.qInterColumnSortOrder.length > 0 ? (arg.qHyperCubeDef.qInterColumnSortOrder[0] == 0) : false;
-            //console.log('qSortCriterias', arg.qHyperCubeDef.qInterColumnSortOrder[0], sortByLoadOrder, interSort);
-            return !sortByLoadOrder || !interSort;
-        }
-    */
-    async function resolveProperty(prop, enigma) {
-        // takes care of a property being either a constant or a expression, which needs to be evaluated
-        var ret;
-        if (prop.qStringExpression) {
-            ret = await enigma.evaluate(prop.qStringExpression.qExpr);
-            //console.log('was expression: ', ret);
-        } else {
-            //console.log(prop,' was constant');
-            ret = prop;
-        }
-        return ret;
-    }
-
-    function getTourItemsSectionPos() {
-        var domPos = null;
-        // now inspect the DOM model for CSS class 'pp-section' elements
-        $(ppSection).each(function (i, e) {
-            // console.log('DOM:', i, '.pp-section', $(e)[0].innerText);
-            domPos = $(e)[0].innerText.indexOf('Tooltip Items') >= 0 ? i : domPos
-        })
-        return domPos
-    }
-
-    function getItemPos(arg, context) {
-        // with two arguments arg and context, the function an search by a unique, automatically set cId
-        // attribute within the array of the property tree, which is the nth position
-        const this_cId = arg.cId;  // unique id of the given item within pTourItems array
-        //console.log('looking for', this_cId);
-        var itemPos = null;
-        context.properties.pTourItems.forEach(function (tourItem, i) {
-            itemPos = tourItem.cId == this_cId ? i : itemPos
-        });
-        return itemPos
-    }
 
     return {
 
@@ -97,47 +18,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
 
             return {
                 label: function (arg) {
-                    // console.log('rendering tourItems label', arg.pTourItems);
-                    const domPos = getTourItemsSectionPos();
-                    //$(`.pp-accordion-container [tid="1"] .pp-nm-di__header-content`)
-                    if (domPos) {
-                        // check all items if the selector is valid and
-                        arg.pTourItems.forEach((tourItem, i) => {
-                            const selector = tourItem.selector.split(':').splice(-1)[0];
-                            const accordeonElem = $(`${ppSection}:nth-child(${domPos + 1}) li:nth-child(${i + 1}) ${ppNmDi_Content}`);
-                            if ($(`[tid="${selector}"]`).length == 0) {
-                                // The given selector of that tour item is invalid
-                                accordeonElem.css("background", "#b98888").css("color", "white");
-                            } else {
-                                accordeonElem.css("background", "").css("color", "");
-                            }
-                        })
-
-                        $(`${ppSection}:nth-child(${domPos + 1}) ${ppNmDi_Content}`)
-                            .not('[guided-tour-event="click"]')
-                            //.css('border', 'gray 1px solid')
-                            .attr('guided-tour-event', 'click')
-                            .click(function (e) {
-                                console.log('guided-tour-click-item', $(e.currentTarget)[0].innerText);
-                                const selector = $(e.currentTarget)[0].innerText.split(':').splice(-1)[0];
-                                // const closestInput = $(e.currentTarget);//.closest('li').find('[tid="selector"] .label');
-                                if (selector) {
-                                    const elem = $(`[tid="${selector}"]`);
-                                    if (elem.length) {
-                                        const bgBefore = elem.css('background-color');
-                                        elem.animate({
-                                            backgroundColor: 'yellow'
-                                        }, 300, function () {
-                                            elem.css('background-color', bgBefore);
-                                        });
-                                        // closestInput.css('border', '1px solid green');
-                                    } else {
-                                        // bad selector
-                                        // closestInput.css('border', '2px solid red');
-                                    }
-                                }
-                            });
-                    }
+                    registerEvents(arg);
                     return `💬 Tooltip Items (${arg.pTourItems ? arg.pTourItems.length : 0})`
                 },
                 type: 'items',
@@ -174,46 +55,12 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
                                 },
                                 component: "button",
                                 action: function (arg, context) {
-                                    const inputRef = 'selector';  // property name 
-
-                                    var itemPos = getItemPos(arg, context);
-
-                                    // find out if the button was previously pressed and the user is still in "pick-mode"
-                                    if (arg.selector) {
-                                        var isPreviewMode = true;
-                                        // put current properties into tooltipsCache
-                                        guided_tour_global.tooltipsCache[context.properties.qInfo.qId] = JSON.parse(JSON.stringify(context.properties.pTourItems));
-                                        tooltips.play3(
-                                            context.properties.qInfo.qId, context.layout, itemPos, false, enigma,
-                                            guided_tour_global, currSheet, isPreviewMode);
-                                    }
-                                    else if ($('.guided-tour-picker').length > 0) {
-                                        // end the pick-mode
-                                        $('.guided-tour-picker').remove();
-
-                                    } else {
-
-                                        // console.log('found in pos', itemPos);
-                                        const domPos = getTourItemsSectionPos();
-                                        if (domPos) {
-                                            //console.log('found in DOM', domPos);
-                                            const cssSelector = `${ppSection}:nth-child(${domPos + 1}) ${ppNmDi}:nth-child(${itemPos + 1}) [tid="${inputRef}"] input`;
-                                            // console.log('cssSelector', cssSelector);
-                                            if ($(cssSelector).length > 0) {
-                                                picker.pickMany(context.properties.qInfo.qId, enigma, itemPos, context.properties.pTourItems);
-
-                                            } else {
-                                                alert('Cannot find the "Tooltip Items" text in DOM model. Invalid css selector:', cssSelector);
-                                            }
-                                        } else {
-                                            alert('Cannot find the "Tooltip Items" text in DOM model. Invalid css selector:', ppSection);
-                                        }
-                                    }
+                                    previewOrPickClicked(arg, context, enigma, guided_tour_global, currSheet);
                                 }
                             },
                             html: {
                                 ref: "html",
-                                label: "Text (HTML)",
+                                label: "Text (HTML allowed)",
                                 type: "string",
                                 component: "textarea",
                                 rows: 5,
@@ -242,8 +89,8 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
                                             },
                                             orientation: {
                                                 ref: "orientation",
-                                                label: "Orientation",
-                                                type: 'string', defaultValue: 'click',
+                                                label: "Tooltip position",
+                                                type: 'string',
                                                 component: 'dropdown',
                                                 defaultValue: "",
                                                 options: [
@@ -271,9 +118,9 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
 
         },
 
-        tourSettings: function (app, guided_tour_global) {
-            const enigma = app.model.enigmaModel;
-            const currSheet = qlik.navigation.getCurrentSheetId().sheetId;
+        tourSettings: function (app, qlik) {
+            //const enigma = app.model.enigmaModel;
+            // const currSheet = qlik.navigation.getCurrentSheetId().sheetId;
             return {
                 label: "⚙️ Tour Settings",
                 type: 'items',
@@ -636,6 +483,158 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
                         }
                     }
                 ]
+            }
+        }
+    }
+
+    function subSection(labelText, itemsArray, argKey, argVal) {
+        var ret = {
+            component: 'expandable-items',
+            items: {}
+        };
+        var hash = 0;
+        for (var j = 0; j < labelText.length; j++) {
+            hash = ((hash << 5) - hash) + labelText.charCodeAt(j)
+            hash |= 0;
+        }
+        ret.items[hash] = {
+            label: labelText,
+            type: 'items',
+            show: function (arg) { return (argKey && argVal) ? (arg[argKey] == argVal) : true },
+            items: itemsArray
+        };
+        return ret;
+    }
+
+    function getDimNames(props, indexOrLabel) {
+        // returns the labels/field names of the Dimension in this qHyperCubeDef as an array of {value: #, label: ""}
+        var opt = [{ value: "", label: "- not assigned -" }];
+        var i = -1;
+        for (const dim of props.qHyperCubeDef.qDimensions) {
+            i++;
+            var label = dim.qDef.qFieldLabels[0].length == 0 ? dim.qDef.qFieldDefs[0] : dim.qDef.qFieldLabels[0];
+            if (label.substr(0, 1) == '=') label = label.substr(1);
+            if (i >= 2) opt.push({  // skip the first 2 dimensions
+                value: indexOrLabel == 'label' ? label : i,
+                label: label
+            });
+        }
+        return opt;
+    }
+
+    async function resolveProperty(prop, enigma) {
+        // takes care of a property being either a constant or a expression, which needs to be evaluated
+        var ret;
+        if (prop.qStringExpression) {
+            ret = await enigma.evaluate(prop.qStringExpression.qExpr);
+            //console.log('was expression: ', ret);
+        } else {
+            //console.log(prop,' was constant');
+            ret = prop;
+        }
+        return ret;
+    }
+
+    function getTourItemsSectionPos() {
+        var domPos = null;
+        // now inspect the DOM model for CSS class 'pp-section' elements
+        $(ppSection).each(function (i, e) {
+            // console.log('DOM:', i, '.pp-section', $(e)[0].innerText);
+            domPos = $(e)[0].innerText.indexOf('Tooltip Items') >= 0 ? i : domPos
+        })
+        return domPos
+    }
+
+    function getItemPos(arg, context) {
+        // with two arguments arg and context, the function an search by a unique, automatically set cId
+        // attribute within the array of the property tree, which is the nth position
+        const this_cId = arg.cId;  // unique id of the given item within pTourItems array
+        //console.log('looking for', this_cId);
+        var itemPos = null;
+        context.properties.pTourItems.forEach(function (tourItem, i) {
+            itemPos = tourItem.cId == this_cId ? i : itemPos
+        });
+        return itemPos
+    }
+
+    function registerEvents(arg) {
+        // console.log('rendering tourItems label', arg.pTourItems);
+        const domPos = getTourItemsSectionPos();
+        //$(`.pp-accordion-container [tid="1"] .pp-nm-di__header-content`)
+        if (domPos) {
+            // check all items if the selector is valid and
+            arg.pTourItems.forEach((tourItem, i) => {
+                const selector = tourItem.selector.split(':').splice(-1)[0];
+                const accordeonElem = $(`${ppSection}:nth-child(${domPos + 1}) li:nth-child(${i + 1}) ${ppNmDi_Content}`);
+                if ($(`[tid="${selector}"]`).length == 0) {
+                    // The given selector of that tour item is invalid
+                    accordeonElem.css("background", "#b98888").css("color", "white");
+                } else {
+                    accordeonElem.css("background", "").css("color", "");
+                }
+            })
+
+            $(`${ppSection}:nth-child(${domPos + 1}) ${ppNmDi_Content}`)
+                .not('[guided-tour-event="click"]')
+                //.css('border', 'gray 1px solid')
+                .attr('guided-tour-event', 'click') // add this attribute and the click event0
+                .click(function (e) {
+                    console.log('guided-tour-click-item', $(e.currentTarget)[0].innerText);
+                    const selector = $(e.currentTarget)[0].innerText.split(':').splice(-1)[0];
+                    // const closestInput = $(e.currentTarget);//.closest('li').find('[tid="selector"] .label');
+                    if (selector) {
+                        const elem = $(`[tid="${selector}"]`);
+                        if (elem.length) {
+                            const bgBefore = elem.css('background-color');
+                            elem.animate({
+                                backgroundColor: 'yellow'
+                            }, 300, function () {
+                                elem.css('background-color', bgBefore);
+                            });
+                            // closestInput.css('border', '1px solid green');
+                        } else {
+                            // bad selector
+                            // closestInput.css('border', '2px solid red');
+                        }
+                    }
+                });
+        }
+    }
+
+    function previewOrPickClicked(arg, context, enigma, guided_tour_global, currSheet) {
+        const inputRef = 'selector';  // property name 
+
+        var itemPos = getItemPos(arg, context);
+
+        // find out if the button was previously pressed and the user is still in "pick-mode"
+        if (arg.selector) {
+            var isPreviewMode = true;
+            // put current properties into tooltipsCache
+            guided_tour_global.tooltipsCache[context.properties.qInfo.qId] = JSON.parse(JSON.stringify(context.properties.pTourItems));
+            tooltips.play3(
+                context.properties.qInfo.qId, context.layout, itemPos, false, enigma,
+                guided_tour_global, currSheet, isPreviewMode);
+        }
+        else if ($('.guided-tour-picker').length > 0) {
+            // end the pick-mode
+            $('.guided-tour-picker').remove();
+
+        } else {
+
+            // console.log('found in pos', itemPos);
+            const domPos = getTourItemsSectionPos();
+            if (domPos) {
+                //console.log('found in DOM', domPos);
+                const cssSelector = `${ppSection}:nth-child(${domPos + 1}) ${ppNmDi}:nth-child(${itemPos + 1}) [tid="${inputRef}"] input`;
+                // console.log('cssSelector', cssSelector);
+                if ($(cssSelector).length > 0) {
+                    picker.pickMany(context.properties.qInfo.qId, enigma, itemPos, context.properties.pTourItems);
+
+                } else {
+                    alert('Cannot find the "Tooltip Items" text in DOM model. Invalid css selector:', cssSelector);
+                }
+            } else {
+                alert('Cannot find the "Tooltip Items" text in DOM model. Invalid css selector:', ppSection);
             }
         }
     }
