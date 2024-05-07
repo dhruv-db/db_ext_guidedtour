@@ -19,11 +19,19 @@ define(["jquery"], function ($) {
             padding: 0 10px; height: 20px; line-height:20px;"></div>`;
     }
 
+    function pickersOff(ownId) {
+        $('.guided-tour-picker').remove(); // remove previous divs
+    }
+
     return {
+
+        pickersOff: function (ownId) {
+            pickersOff(ownId);
+        },
 
         pickMany: function (ownId, enigma, itemPos, pTourItems) {
 
-            $(".guided-tour-picker").remove(); // remove previous divs
+            pickersOff(ownId); // remove previous divs
             var position = itemPos;
             const posCorr = $(`[tid="${ownId}"]`).offset();
             const searchIds = JSON.stringify(pTourItems);

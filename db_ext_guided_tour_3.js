@@ -1,18 +1,27 @@
-define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips", "./license", "./qlik-css-selectors"], function
-    (qlik, $, cssContent, props, tooltips, license, qlikCss) {
+define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
+    "./license", "./picker", "./qlik-css-selectors"], function
+    (qlik, $, cssContent, props, tooltips, license, picker, qlikCss) {
 
     'use strict';
 
     var guided_tour_global = {
         qext: {}, // extension meta-information
         hashmap: license.hashmap(location.hostname, 'db_ext_guided_tour'), // hash map for the license check
+
         activeTooltip: {},  // remember all active tours, contains later one entry per extension and the 
         // an integer shows the active tooltip (0..n) or -2 if tour is inactive, -1 (in hover-mode) if armed
+
         visitedTours: {},  // all extension-ids which will be started, are added to this object
+
         licensedObjs: {}, // list of all extension-ids which have a license
-        tooltipsCache: {}, // the qHypercube result of each tour will be put here under the key of the objectId when started 
-        noLicenseWarning: {} // in order not to suppress repeating license warnings , every extension id is added here once the warning was shown
+
+        tooltipsCache: {}, // the tour items of each tour will be put here under the key of the objectId when started 
+
+        noLicenseWarning: {}, // in order not to suppress repeating license warnings , every extension id is added here once the warning was shown
+
+        pickersOpen: {} // boolean for each tour object will be added, telling if pickers are open such as {"o6K1m": true}
     }
+
     const lStorageDefault = '{"openedAt":"18991231000000", "objectsOpened": {}}';
     function noLicenseMsg(mode) {
         return `The ${mode} mode would start now, if you had a license for the guided-tour extension.
@@ -105,7 +114,7 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips", "./licen
             const mode = qlik.navigation.getMode();
             const rootContainer = qlikCss.v(0).pageContainer;
 
-            if (mode != 'edit') $('.guided-tour-picker').remove();
+            if (mode != 'edit') picker.pickersOff('*'); // close all pickers if any open
             if (layout.pConsoleLog) console.log(ownId, 'resize', layout, guided_tour_global);
 
             // if a tooltip is open, reposition it
@@ -138,7 +147,7 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips", "./licen
             const currSheet = qlik.navigation.getCurrentSheetId().sheetId;
             const mode = qlik.navigation.getMode();
             if (layout.pConsoleLog) console.log(ownId, 'paint', layout, guided_tour_global);
-            if (qlik.navigation.getMode() != 'edit') $('.guided-tour-picker').remove();
+            if (qlik.navigation.getMode() != 'edit') picker.pickersOff(ownId);
             const lStorageKey = app.id + '|' + ownId;
             const objFieldName = null;
             // add sheet to activeTooltip object
