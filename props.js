@@ -7,7 +7,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
     const ppSection = qlikCss.v(0).ppSection; // class for accordeons top <div>
     const ppNmDi = qlikCss.v(0).ppNmDi; // class for sub-accordeons <li>
     const ppNmDi_Content = qlikCss.v(0).ppNmDi_Content; // class for <div> inside ppNmDi that should get the click event
-
+    const accordionHeaderCollapsed = qlikCss.v(0).accordionHeaderCollapsed;
 
     return {
 
@@ -542,6 +542,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
             // console.log('DOM:', i, '.pp-section', $(e)[0].innerText);
             domPos = $(e)[0].innerText.indexOf('Tooltip Items') >= 0 ? i : domPos
         })
+        $(`${ppSection} h4`)
         return domPos
     }
 
@@ -558,11 +559,41 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
     }
 
     function registerEvents(arg) {
-        // console.log('rendering tourItems label', arg.pTourItems);
+        // console.log('function registerEvents', arg);
+
+
         const domPos = getTourItemsSectionPos();
-        //$(`.pp-accordion-container [tid="1"] .pp-nm-di__header-content`)
+
         if (domPos) {
-            // check all items if the selector is valid and
+
+            if (!$(`${ppSection}:nth-child(${domPos + 1}) h4`).hasClass(accordionHeaderCollapsed)) {
+                // the accordeon menu of "Tooltip Items" is open
+                if ($(`${ppSection}:nth-child(${domPos + 1}) h4`).attr('guided-tour-event') != 'click') {
+                    // the "click" event has not been registered
+                    $(`${ppSection}:nth-child(${domPos + 1}) h4`).css('background', 'floralwhite');
+                    console.log('show pickers', Math.random());
+                }
+            }
+            // register click event on all main sections of accordeon menu
+            $(`${ppSection} h4`)
+                .not('[guided-tour-event="click"]')
+                .attr('guided-tour-event', 'click') // add this attribute and the click event
+                .click(function (e) {
+                    // is the Tooltip Items section clicked?
+                    const tid = getTourItemsSectionPos();
+                    if ($(e.currentTarget).parent().attr('tid') == tid
+                        && !$(e.currentTarget).hasClass(accordionHeaderCollapsed)) {
+                        // clicked and open
+                        $(`${ppSection}:nth-child(${tid + 1}) h4`).css('background', 'floralwhite');
+                        console.log('show pickers', Math.random());
+                    } else {
+                        // clicked and closed
+                        $(`${ppSection}:nth-child(${tid + 1}) h4`).css('background', '');
+                        console.log('hide pickers', Math.random());
+                    }
+                });
+
+            // check all items if the selector is valid and mark the item with red background if not
             arg.pTourItems.forEach((tourItem, i) => {
                 const selector = tourItem.selector.split(':').splice(-1)[0];
                 const accordeonElem = $(`${ppSection}:nth-child(${domPos + 1}) li:nth-child(${i + 1}) ${ppNmDi_Content}`);
@@ -598,6 +629,8 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
                         }
                     }
                 });
+        } else {
+            // console.error('function registerEvents: Could not find out which position in accordeon menu is the "Tooltip Items" section')
         }
     }
 
@@ -617,7 +650,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
         }
         else if ($('.guided-tour-picker').length > 0) {
             // end the pick-mode
-            $('.guided-tour-picker').remove();
+            picker.pickersOff(context.properties.qInfo.qId);
 
         } else {
 

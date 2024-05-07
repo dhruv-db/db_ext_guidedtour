@@ -1,8 +1,8 @@
 // tooltips.js: function play externalized 
 // Test Dhruv
 // Christof's comment
-define(["qlik", "jquery", "./license", "./qlik-css-selectors"], function
-    (qlik, $, license, qlikCss) {
+define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], function
+    (qlik, $, license, qlikCss, picker) {
 
     function isScrolledIntoView(elem) {
         var docViewTop = $(window).scrollTop();
@@ -190,7 +190,7 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors"], function
     //    =========================================================================================
     function play3(ownId, layout, tooltipNo, reset, enigma, guided_tour_global, currSheet, isPreviewMode, lStorageKey, lStorageVal) {
 
-        console.log('play3(', ownId, layout, tooltipNo, reset, enigma, guided_tour_global, currSheet, isPreviewMode, lStorageKey, lStorageVal, ')');
+        // console.log('play3(', ownId, layout, tooltipNo, reset, enigma, guided_tour_global, currSheet, isPreviewMode, lStorageKey, lStorageVal, ')');
 
         //=========================================================================================
         const arrowHeadSize = layout.pArrowHead || 16;
@@ -200,7 +200,7 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors"], function
         const licensed = guided_tour_global.licensedObjs[ownId];
         const isLast = tooltipNo >= (guided_tour_global.tooltipsCache[ownId].length - 1);
 
-        $('.guided-tour-picker').remove();  // remove picker buttons if still rendered
+        picker.pickersOff(ownId); // remove picker buttons if still rendered
 
         if (layout.pConsoleLog) console.log(`${ownId} Play tour, tooltip ${tooltipNo} (isLast ${isLast}, licensed ${licensed}, lStorageKey ${lStorageKey})`);
 

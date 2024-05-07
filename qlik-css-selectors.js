@@ -9,7 +9,8 @@ define([], function () {
                 stageContainer: '#qv-stage-container', // root element in "single.html" mode of Sense Client
                 pageContainer: '#qv-page-container', // root element in Sense Client (standard analysis or edit mode)
                 sheetTitle: '#sheet-title',
-                innerObject: '.qv-inner-object' // class in the childs of 'article' tag 
+                innerObject: '.qv-inner-object', // class in the childs of <article> tag 
+                accordionHeaderCollapsed: 'ui-accordion-header-collapsed' // class of the <h4> tag of accordean menu when it is closed
             }
         }
     }
