@@ -12,6 +12,7 @@
 # v1.1.2, Christof Schwarz, 02-Nov-2022, fix for younger qlik.exe versions
 # v1.2, Christof, 22-Apr-2024, allow multiple configs for different computers in settings.json
 # v1.3, Christof, 01-Mai-2024, prompt user for key and option to upload extension under temp name
+# v1.3.1, Dhruv, 07-May-2024, if buily type = 1 then creating obfuscated files, for 0 (developer) build no obfuscation
 
 $hostname = hostname 
 Write-Host "*** running " -NoNewline
@@ -110,6 +111,27 @@ while ((Get-Date) -lt ($startTime.AddSeconds(8))) {
             $jsonString | Set-Content -Path "$($folder)$($rnd)\$($extension_temp_name).qext"
             $extension_name = $extension_temp_name
         }
+        else{
+            #Build Obfuscated files
+            & javascript-obfuscator "$($folder)$($rnd)\$($extension_name).js" 
+            Remove-Item "$($folder)$($rnd)\$($extension_name).js"
+            Rename-Item "$($folder)$($rnd)\$($extension_name)-obfuscated.js" "$($folder)$($rnd)\$($extension_name).js"
+            # & javascript-obfuscator "$($folder)$($rnd)\functions.js" 
+            # Remove-Item "$($folder)$($rnd)\functions.js"
+            # Rename-Item "$($folder)$($rnd)\functions-obfuscated.js" "$($folder)$($rnd)\functions.js"
+            & javascript-obfuscator "$($folder)$($rnd)\license.js" 
+            Remove-Item "$($folder)$($rnd)\license.js"
+            Rename-Item "$($folder)$($rnd)\license-obfuscated.js" "$($folder)$($rnd)\license.js"
+            & javascript-obfuscator "$($folder)$($rnd)\picker.js" 
+            Remove-Item "$($folder)$($rnd)\picker.js"
+            Rename-Item "$($folder)$($rnd)\picker-obfuscated.js" "$($folder)$($rnd)\picker.js"
+            & javascript-obfuscator "$($folder)$($rnd)\props.js" 
+            Remove-Item "$($folder)$($rnd)\props.js"
+            Rename-Item "$($folder)$($rnd)\props-obfuscated.js" "$($folder)$($rnd)\props.js"
+
+
+        }
+        
         if (Test-Path -Path "$($folder)$($rnd)\doc") {
             Remove-Item -LiteralPath "$($folder)$($rnd)\doc" -Force -Recurse
         }
