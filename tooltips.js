@@ -200,7 +200,7 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
         const licensed = guided_tour_global.licensedObjs[ownId];
         const isLast = tooltipNo >= (guided_tour_global.tooltipsCache[ownId].length - 1);
 
-        picker.pickersOff(ownId); // remove picker buttons if still rendered
+        if (!isPreviewMode) picker.pickersOff(ownId); // remove picker buttons if still rendered
 
         if (layout.pConsoleLog) console.log(`${ownId} Play tour, tooltip ${tooltipNo} (isLast ${isLast}, licensed ${licensed}, lStorageKey ${lStorageKey})`);
 
