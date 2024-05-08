@@ -12,7 +12,7 @@
 # v1.1.2, Christof Schwarz, 02-Nov-2022, fix for younger qlik.exe versions
 # v1.2, Christof, 22-Apr-2024, allow multiple configs for different computers in settings.json
 # v1.3, Christof, 01-Mai-2024, prompt user for key and option to upload extension under temp name
-# v1.3.1, Dhruv, 07-May-2024, if buily type = 1 then creating obfuscated files, for 0 (developer) build no obfuscation
+# v1.3.1, Dhruv, 07-May-2024, if buily type = 1 then creating obfuscated files, for 0 (developer) build no obfuscation (We are using external NPM lib for obfuscation "npm i -g javascript-obfuscator")
 
 $hostname = hostname 
 Write-Host "*** running " -NoNewline
