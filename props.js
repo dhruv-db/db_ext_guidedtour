@@ -17,8 +17,8 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
             const enigma = app.model.enigmaModel;
 
             return {
-                label: function (arg) {
-                    registerEvents(arg);
+                label: function (arg, context) {
+                    registerEvents(arg, context, enigma, guided_tour_global);
                     return `💬 Tooltip Items (${arg.pTourItems ? arg.pTourItems.length : 0})`
                 },
                 type: 'items',
@@ -35,27 +35,30 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
                             selector: {
                                 ref: "selector",
                                 label: function (arg, context) {
-                                    // var itemPos = getItemPos(arg, context);
-                                    var ret = "CSS selector"
-                                    const selector = arg.selector.split(':').splice(-1)[0];
-                                    if (selector) {
-                                        if ($(`[tid="${selector}"]`).length == 0) {
-                                            ret = "\u{1F534} " + ret + " (not found)"
-                                        } else {
-                                            ret = "\u{1F7E2}" + ret
-                                        }
+                                    var ret = "CSS selector";
+                                    if (!selectorFound(arg.selector)) {
+                                        ret = "\u{1F534} " + ret + " (not found)"
+                                    } else if (arg.selector.length) {
+                                        ret = "\u{1F7E2}" + ret
                                     }
                                     return ret
                                 },
                                 type: "string"
                             },
                             picker: {
-                                label: function (arg) {
-                                    return arg.selector ? "Preview tooltip" : "Pick object"
-                                },
+                                label: "Pick object",
                                 component: "button",
+                                show: function (arg) { return !arg.selector },
                                 action: function (arg, context) {
-                                    previewOrPickClicked(arg, context, enigma, guided_tour_global, currSheet);
+                                    pickerButtonClick(arg, context, enigma, guided_tour_global);
+                                }
+                            },
+                            preview: {
+                                label: "Preview tooltip",
+                                component: "button",
+                                show: function (arg) { return arg.selector.length > 0 },
+                                action: function (arg, context) {
+                                    previewButtonClick(arg, context, enigma, guided_tour_global, currSheet);
                                 }
                             },
                             html: {
@@ -487,6 +490,12 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
         }
     }
 
+    function selectorFound(objId) {
+        // returns if the objId is found in the DOM model of the page
+        const selector = objId.split(':').splice(-1)[0];
+        return ($(`[tid="${selector}"]`).length > 0)
+    }
+
     function subSection(labelText, itemsArray, argKey, argVal) {
         var ret = {
             component: 'expandable-items',
@@ -558,11 +567,16 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
         return itemPos
     }
 
-    function registerEvents(arg) {
+    function registerEvents(arg, context, enigma) {
+        // function to register click event in the accordeon when the Tooltip Items section
+        // is clicked
+
         // console.log('function registerEvents', arg);
 
-
+        const ownId = context.properties.qInfo.qId;
         const domPos = getTourItemsSectionPos();
+
+        picker.pickersRefresh(ownId, context.properties.pTourItems);
 
         if (domPos) {
 
@@ -570,8 +584,9 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
                 // the accordeon menu of "Tooltip Items" is open
                 if ($(`${ppSection}:nth-child(${domPos + 1}) h4`).attr('guided-tour-event') != 'click') {
                     // the "click" event has not been registered
-                    $(`${ppSection}:nth-child(${domPos + 1}) h4`).css('background', 'floralwhite');
+                    // $(`${ppSection}:nth-child(${domPos + 1}) h4`).css('background', 'floralwhite');
                     console.log('show pickers', Math.random());
+                    picker.pickersOn(ownId, enigma, null, context.properties.pTourItems);
                 }
             }
             // register click event on all main sections of accordeon menu
@@ -581,15 +596,18 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
                 .click(function (e) {
                     // is the Tooltip Items section clicked?
                     const tid = getTourItemsSectionPos();
-                    if ($(e.currentTarget).parent().attr('tid') == tid
-                        && !$(e.currentTarget).hasClass(accordionHeaderCollapsed)) {
+                    if ($(e.currentTarget).parent().attr('tid') == tid) {
+                        //&& !$(e.currentTarget).hasClass(accordionHeaderCollapsed)) {
                         // clicked and open
-                        $(`${ppSection}:nth-child(${tid + 1}) h4`).css('background', 'floralwhite');
+                        // $(`${ppSection}:nth-child(${tid + 1}) h4`).css('background', 'floralwhite');
                         console.log('show pickers', Math.random());
+                        picker.pickersOn(ownId, enigma, null, context.properties.pTourItems);
+
                     } else {
                         // clicked and closed
-                        $(`${ppSection}:nth-child(${tid + 1}) h4`).css('background', '');
+                        // $(`${ppSection}:nth-child(${tid + 1}) h4`).css('background', '');
                         console.log('hide pickers', Math.random());
+                        picker.pickersOff(ownId);
                     }
                 });
 
@@ -634,41 +652,51 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
         }
     }
 
-    function previewOrPickClicked(arg, context, enigma, guided_tour_global, currSheet) {
+    function pickerButtonClick(arg, context, enigma, guided_tour_global) {
+
+        // in the properties of Tooltip icons the Pick Object button was clicked.
         const inputRef = 'selector';  // property name 
 
         var itemPos = getItemPos(arg, context);
 
         // find out if the button was previously pressed and the user is still in "pick-mode"
-        if (arg.selector) {
-            var isPreviewMode = true;
-            // put current properties into tooltipsCache
-            guided_tour_global.tooltipsCache[context.properties.qInfo.qId] = JSON.parse(JSON.stringify(context.properties.pTourItems));
-            tooltips.play3(
-                context.properties.qInfo.qId, context.layout, itemPos, false, enigma,
-                guided_tour_global, currSheet, isPreviewMode);
-        }
-        else if ($('.guided-tour-picker').length > 0) {
-            // end the pick-mode
-            picker.pickersOff(context.properties.qInfo.qId);
+        // if ($('.guided-tour-picker').length > 0) {
+        //     // end the pick-mode
+        //     picker.pickersOff(context.properties.qInfo.qId);
 
-        } else {
+        // } else {
 
-            // console.log('found in pos', itemPos);
-            const domPos = getTourItemsSectionPos();
-            if (domPos) {
-                //console.log('found in DOM', domPos);
-                const cssSelector = `${ppSection}:nth-child(${domPos + 1}) ${ppNmDi}:nth-child(${itemPos + 1}) [tid="${inputRef}"] input`;
-                // console.log('cssSelector', cssSelector);
-                if ($(cssSelector).length > 0) {
-                    picker.pickMany(context.properties.qInfo.qId, enigma, itemPos, context.properties.pTourItems);
+        // console.log('found in pos', itemPos);
+        const domPos = getTourItemsSectionPos();
+        if (domPos) {
+            //console.log('found in DOM', domPos);
+            const cssSelector = `${ppSection}:nth-child(${domPos + 1}) ${ppNmDi}:nth-child(${itemPos + 1}) [tid="${inputRef}"] input`;
+            // console.log('cssSelector', cssSelector);
+            if ($(cssSelector).length > 0) {
+                picker.pickersOn(context.properties.qInfo.qId, enigma, itemPos, context.properties.pTourItems);
 
-                } else {
-                    alert('Cannot find the "Tooltip Items" text in DOM model. Invalid css selector:', cssSelector);
-                }
             } else {
-                alert('Cannot find the "Tooltip Items" text in DOM model. Invalid css selector:', ppSection);
+                alert('Cannot find the "Tooltip Items" text in DOM model. Invalid css selector:', cssSelector);
             }
+        } else {
+            alert('Cannot find the "Tooltip Items" text in DOM model. Invalid css selector:', ppSection);
         }
+        // }
+    }
+
+    function previewButtonClick(arg, context, enigma, guided_tour_global, currSheet) {
+
+        // in the properties of Tooltip icons the Preview Tooltip button was clicked.
+        const itemPos = getItemPos(arg, context);
+
+        var isPreviewMode = true;
+        // put current properties into tooltipsCache
+        guided_tour_global.tooltipsCache[context.properties.qInfo.qId] = JSON.parse(JSON.stringify(context.properties.pTourItems));
+
+        tooltips.play3(
+            context.properties.qInfo.qId, context.layout, itemPos, false, enigma,
+            guided_tour_global, currSheet, isPreviewMode
+        );
+
     }
 });

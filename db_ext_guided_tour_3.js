@@ -17,9 +17,7 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
 
         tooltipsCache: {}, // the tour items of each tour will be put here under the key of the objectId when started 
 
-        noLicenseWarning: {}, // in order not to suppress repeating license warnings , every extension id is added here once the warning was shown
-
-        pickersOpen: {} // boolean for each tour object will be added, telling if pickers are open such as {"o6K1m": true}
+        noLicenseWarning: {} // in order not to suppress repeating license warnings , every extension id is added here once the warning was shown
     }
 
     const lStorageDefault = '{"openedAt":"18991231000000", "objectsOpened": {}}';
