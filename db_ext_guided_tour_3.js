@@ -174,9 +174,11 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
                     </div>
                     `: '') + `
                     <div id="${ownId}_start" style="${layout.pLaunchMode == 'hover' ? '' : 'cursor:pointer;'} text-align:center;${layout.pMoreStyles}">
-                        <span class="lui-icon  lui-icon--large  ${getActiveTour(ownId, currSheet, layout) == ownId ? 'lui-icon--reload  guided-tour-rotate' : 'lui-icon--play'}" style="${!layout.pShowIcon || layout.pLaunchMode == 'hover' ? 'display:none;' : ''}" id="${ownId}_play"></span> 
-                        ${layout.pTextStart}
-                    </div>                    
+                        <span class="lui-icon  lui-icon--large    
+                        ${layout.pTourItems.length == 0 ? picker.pickersOn(ownId, enigma, null, layout.pTourItems) : (getActiveTour(ownId, currSheet, layout) == ownId ? 'lui-icon--reload  guided-tour-rotate' : 'lui-icon--play')}
+                       " style="${!layout.pShowIcon || layout.pLaunchMode == 'hover' || layout.pTourItems.length == 0 ? 'display:none;' : ''}" id="${ownId}_play"></span> 
+                        ${layout.pTourItems.length == 0 ? "💬 Get Started" : layout.pTextStart}
+                    </div>                     
                 </div>
             `);
 
