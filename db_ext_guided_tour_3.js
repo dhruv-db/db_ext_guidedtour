@@ -173,12 +173,21 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
                       </label>
                     </div>
                     `: '') + `
+                                
                     <div id="${ownId}_start" style="${layout.pLaunchMode == 'hover' ? '' : 'cursor:pointer;'} text-align:center;${layout.pMoreStyles}">
-                        <span class="lui-icon  lui-icon--large  ${getActiveTour(ownId, currSheet, layout) == ownId ? 'lui-icon--reload  guided-tour-rotate' : 'lui-icon--play'}" style="${!layout.pShowIcon || layout.pLaunchMode == 'hover' ? 'display:none;' : ''}" id="${ownId}_play"></span> 
-                        ${layout.pTextStart}
-                    </div>                    
-                </div>
+                    <span class="lui-icon  lui-icon--large    
+                    ${layout.pTourItems.length == 0 ? picker.pickersOn(ownId, enigma, null, layout.pTourItems) : (getActiveTour(ownId, currSheet, layout) == ownId ? 'lui-icon--reload  guided-tour-rotate' : 'lui-icon--play')}
+                   " style="${!layout.pShowIcon || layout.pLaunchMode == 'hover' || layout.pTourItems.length == 0 ? 'display:none;' : ''}" id="${ownId}_play"></span> 
+                    ${layout.pTourItems.length == 0 ? "💬 Select Tooltip" : layout.pTextStart}
+                </div>     
+  
             `);
+            //     <div id="${ownId}_start" style="${layout.pLaunchMode == 'hover' ? '' : 'cursor:pointer;'} text-align:center;${layout.pMoreStyles}" onclick="${layout.pTourItems.length == 0 ? picker.pickersOn(ownId, enigma, null, layout.pTourItems) : (getActiveTour(ownId, currSheet, layout) == ownId ? '' : '')}">
+            //     <span class="lui-icon  lui-icon--large" style="${!layout.pShowIcon || layout.pLaunchMode == 'hover' || layout.pTourItems.length == 0 ? 'display:none;' : ''}" id="${ownId}_play"></span> 
+            //     ${layout.pTourItems.length == 0 ? "💬 Get Started" : layout.pTextStart}
+            // </div>
+
+
 
             $(`[tid="${ownId}"] ${qlikCss.v(0).innerObject}`).css('background-color', layout.pExtensionBgColor); // set bg-color in Sense Client
 

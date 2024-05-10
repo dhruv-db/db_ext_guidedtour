@@ -210,7 +210,8 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
                             ref: 'pTextStart',
                             defaultValue: 'Start Tour',
                             expression: 'optional'
-                        }, /*{
+                        },
+                        /*{
                         label: "Mouse-Over Mode \u2605",
                         type: "boolean",
                         component: "switch",
