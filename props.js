@@ -254,7 +254,36 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
                             expression: 'optional'
                         }
                     ])
+
                     , subSection('Tooltips Appearance', [
+                        {
+                            label: 'Hover Icon Text',
+                            type: 'string',
+                            ref: 'pHoverIconText',
+                            defaultValue: '?',
+                            expression: 'optional',
+                            show: function (arg) { return arg.pLaunchMode == 'hover' }
+                        },
+                        {
+                            label: "❔ Example: color: white;background-color: green",
+                            component: "text",
+                            show: function (arg) { return arg.pLaunchMode == 'hover' }
+                        },
+                        {
+                            label: 'Hover Icon Custom CSS',
+                            type: 'string',
+                            ref: 'pHoverIconCustomCSS',
+                            type: "string",
+                            component: "textarea",
+                            rows: 4,
+                            maxlength: 4000,
+                            defaultValue: 'color: #000000;background-color: #d3d3d3;',
+                            expression: 'optional',
+                            show: function (arg) { return arg.pLaunchMode == 'hover' }
+                        },
+
+
+
                         {
                             label: 'Text for Next button',
                             type: 'string',
