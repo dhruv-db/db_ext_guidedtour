@@ -33,16 +33,23 @@
 }
 
 .guided-tour-helpicon {
-  color: white;
-  background-color: green;
-  border: 1px solid black;
+
+  color: #000000;
+  background-color: #d3d3d3;
+  border: 1px solid #404040;
+  opacity: 0.4;
+  border-radius: 50px;
+  cursor: help;
+  padding: 0px 6px 0px 6px;
+  font-weight: bolder;
   opacity: 0.4;
   z-index: 200;
   position: absolute;
   right: 0;
-  padding: 0 5px;
   border-radius: 12px;
   cursor: help;
+
+
 }
 
 .guided-tour-helpicon:hover {

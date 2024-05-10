@@ -230,7 +230,7 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
                                 //layout.pTourItems.forEach((tooltipDef, tooltipNo) => {
                                 const divId = tooltipDef.selector.split(':').slice(-1)[0]; // use the text after : in the selector property;
 
-                                var newDiv = $(`<div class="guided-tour-helpicon">?</div>`);
+                                var newDiv = $(`<div style="${layout.pHoverIconCustomCSS}" class="guided-tour-helpicon">${layout.pHoverIconText}</div>`);
                                 newDiv
                                     .on('click', () => {
                                         if ($('#' + ownId + '_tooltip').length == 0) {
