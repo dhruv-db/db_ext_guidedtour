@@ -277,7 +277,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
                             component: "textarea",
                             rows: 4,
                             maxlength: 4000,
-                            defaultValue: 'color: #000000;background-color: #d3d3d3;',
+                            defaultValue: 'color: #000000;background-color: #d3d3d3;top:-7px;',
                             expression: 'optional',
                             show: function (arg) { return arg.pLaunchMode == 'hover' }
                         },
