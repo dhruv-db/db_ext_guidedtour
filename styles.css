@@ -32,8 +32,32 @@
   margin-top: 10px;
 }
 
-.guided-tour-helpicon {
+.guided-tour-play {
+  cursor: pointer;
+}
 
+.guided-tour-no-items-hint {
+  cursor: pointer;
+  color: orangered;
+  text-align: center;
+}
+
+.guided-tour-parent {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.guided-tour-label {
+  padding-left: 4px;
+}
+
+.guided-tour-parent .lui-switch {
+  margin-right: 2px;
+}
+
+.guided-tour-helpicon {
   color: #000000;
   background-color: #d3d3d3;
   border: 1px solid #404040;
@@ -48,8 +72,6 @@
   right: 0;
   border-radius: 12px;
   cursor: help;
-
-
 }
 
 .guided-tour-helpicon:hover {

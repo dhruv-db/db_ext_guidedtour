@@ -88,6 +88,10 @@ define(["jquery"], function ($) {
 
         pickersOn: function (ownId, enigma, itemPos, pTourItems) {
 
+            // itemPos is an optional argument: it is the position within the pTourItems array 
+            // that the first added object's tid (where (+) is clicked) gets added to. If this is
+            // missing
+
             pickersOff(ownId); // remove previous divs
             var position = itemPos || pTourItems.length + 1;
             const posCorr = $(`[tid="${ownId}"]`).offset();
@@ -112,6 +116,8 @@ define(["jquery"], function ($) {
                             action = 'removed';
                             prop.pTourItems = prop.pTourItems
                                 .filter(i => i.selector.split(':').slice(-1)[0] != objTid);
+                            // remove also the helper-icon if rendered
+                            $(`[tid="${objTid}"] .guided-tour-helpicon-${ownId}`).remove();
 
                         } else {
                             // add item to prop.pTourItems array
