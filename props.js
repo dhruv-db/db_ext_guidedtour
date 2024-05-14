@@ -277,7 +277,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
                             component: "textarea",
                             rows: 4,
                             maxlength: 4000,
-                            defaultValue: 'color: #000000;background-color: #d3d3d3;',
+                            defaultValue: 'color: #000000;background-color: #d3d3d3;top:-7px;',
                             expression: 'optional',
                             show: function (arg) { return arg.pLaunchMode == 'hover' }
                         },
@@ -615,7 +615,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
                 if ($(`${ppSection}:nth-child(${domPos + 1}) h4`).attr('guided-tour-event') != 'click') {
                     // the "click" event has not been registered
                     // $(`${ppSection}:nth-child(${domPos + 1}) h4`).css('background', 'floralwhite');
-                    console.log('show pickers', Math.random());
+                    // console.log('show pickers', Math.random());
                     picker.pickersOn(ownId, enigma, null, context.properties.pTourItems);
                 }
             }
@@ -627,16 +627,13 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
                     // is the Tooltip Items section clicked?
                     const tid = getTourItemsSectionPos();
                     if ($(e.currentTarget).parent().attr('tid') == tid) {
-                        //&& !$(e.currentTarget).hasClass(accordionHeaderCollapsed)) {
                         // clicked and open
-                        // $(`${ppSection}:nth-child(${tid + 1}) h4`).css('background', 'floralwhite');
-                        console.log('show pickers', Math.random());
+                        // console.log('show pickers', Math.random());
                         picker.pickersOn(ownId, enigma, null, context.properties.pTourItems);
 
                     } else {
                         // clicked and closed
-                        // $(`${ppSection}:nth-child(${tid + 1}) h4`).css('background', '');
-                        console.log('hide pickers', Math.random());
+                        // console.log('hide pickers', Math.random());
                         picker.pickersOff(ownId);
                     }
                 });

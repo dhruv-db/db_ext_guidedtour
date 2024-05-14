@@ -109,10 +109,10 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
             const app = qlik.currApp(this);
             const enigma = app.model.enigmaModel
             const licensed = guided_tour_global.licensedObjs[ownId];
-            const mode = qlik.navigation.getMode();
+
             const rootContainer = qlikCss.v(0).pageContainer;
 
-            if (mode != 'edit') picker.pickersOff('*'); // close all pickers if any open
+            if (qlik.navigation.getMode() != 'edit') picker.pickersOff('*'); // close all pickers if any open
             if (layout.pConsoleLog) console.log(ownId, 'resize', layout, guided_tour_global);
 
             // if a tooltip is open, reposition it
@@ -145,7 +145,7 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
             const currSheet = qlik.navigation.getCurrentSheetId().sheetId;
             const mode = qlik.navigation.getMode();
             if (layout.pConsoleLog) console.log(ownId, 'paint', layout, guided_tour_global);
-            if (qlik.navigation.getMode() != 'edit') picker.pickersOff(ownId);
+            if (mode != 'edit') picker.pickersOff(ownId);
             const lStorageKey = app.id + '|' + ownId;
             const objFieldName = null;
             // add sheet to activeTooltip object
@@ -156,38 +156,55 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
             if (!Object(guided_tour_global.activeTooltip[currSheet]).hasOwnProperty(ownId)) {
                 guided_tour_global.activeTooltip[currSheet][ownId] = -2;  // initialize in the global guided_tour_global.activeTooltip array this tour. -2 is: not started
             }
+            if (layout.pConsoleLog) console.log('active tooltip', guided_tour_global.activeTooltip[currSheet][ownId]);
             closeOtherTourObj(ownId, currSheet);
             // console.log(guided_tour_global.activeTooltip);
-            const switchPosition = $('#' + ownId + '_hovermode').is(':checked') ? 'checked' : '';
+
+            // calculate some settings for the HTML, what divs to show, the switch position ...
+            const switchPosition = ($('#' + ownId + '_hovermode').is(':checked') && $(`#guided-tour-helpicon-${ownId}`).length) ? 'checked' : '';
+            const showSwitch = layout.pLaunchMode == 'hover' && layout.pTourItems.length > 0;
+            const showPlayOrRotate = layout.pLaunchMode != 'hover' && layout.pTourItems.length > 0;
+            const showNoItemsHint = layout.pTourItems.length == 0;
 
             $element.html(`
-                <div id="${ownId}_parent" style="height:100%;display:flex;justify-content:center;align-items:center;color:${layout.pExtensionFontColor};background-color:${layout.pExtensionBgColor}">`
-                + (layout.pLaunchMode == 'hover' ? `
-                    <div class="lui-switch" style="margin-right:9px;">
+                <div id="${ownId}_parent" class="guided-tour-parent" 
+                    style="color:${layout.pExtensionFontColor}; background-color:${layout.pExtensionBgColor}">
+                    <!-- Leonardo Switch -->
+                    <div class="lui-switch" 
+                        style="${!showSwitch ? 'display:none;' : ''}">
                       <label class="lui-switch__label">
-                        <input type="checkbox" class="lui-switch__checkbox" aria-label="Label" id="${ownId}_hovermode" ${switchPosition} />
+                        <input type="checkbox" class="lui-switch__checkbox" aria-label="Label" 
+                            id="${ownId}_hovermode" ${switchPosition} />
                         <span class="lui-switch__wrap">
                           <span class="lui-switch__inner"></span>
                           <span class="lui-switch__switch"></span>
                         </span>
                       </label>
                     </div>
-                    `: '') + `
-                                
-                    <div id="${ownId}_start" style="${layout.pLaunchMode == 'hover' ? '' : 'cursor:pointer;'} text-align:center;${layout.pMoreStyles}">
-                    <span class="lui-icon  lui-icon--large    
-                    ${layout.pTourItems.length == 0 ? picker.pickersOn(ownId, enigma, null, layout.pTourItems) : (getActiveTour(ownId, currSheet, layout) == ownId ? 'lui-icon--reload  guided-tour-rotate' : 'lui-icon--play')}
-                   " style="${!layout.pShowIcon || layout.pLaunchMode == 'hover' || layout.pTourItems.length == 0 ? 'display:none;' : ''}" id="${ownId}_play"></span> 
-                    ${layout.pTourItems.length == 0 ? "💬 Select Tooltip" : layout.pTextStart}
-                </div>     
-  
+                    
+                    <div style="text-align:center;${!showPlayOrRotate ? 'display:none;' : ''}${layout.pMoreStyles}">
+                        <!-- Rotating icon -->
+                        <span id="${ownId}_rotate" class="guided-tour-rotate  lui-icon  lui-icon--large  lui-icon--reload"
+                          style="display:none;"></span> 
+                        <!-- Play icon -->
+                        <span id="${ownId}_play" class="guided-tour-play  guided-tour-launch-${ownId}  lui-icon  lui-icon--large  lui-icon--play"></span> 
+                    </div>
+                    <div class="guided-tour-no-items-hint" style="${!showNoItemsHint ? 'display:none;' : ''}"
+                        title="This is a tour without any objects, please click to add some">
+                        💬 please <u>select some tooltips</u> first.
+                    </div>   
+                    <div class="guided-tour-label  guided-tour-launch-${ownId}" style="${showNoItemsHint ? 'display:none;' : ''}">
+                        ${layout.pTextStart}
+                    </div>
+                </div>    
+                </div>
             `);
-            //     <div id="${ownId}_start" style="${layout.pLaunchMode == 'hover' ? '' : 'cursor:pointer;'} text-align:center;${layout.pMoreStyles}" onclick="${layout.pTourItems.length == 0 ? picker.pickersOn(ownId, enigma, null, layout.pTourItems) : (getActiveTour(ownId, currSheet, layout) == ownId ? '' : '')}">
-            //     <span class="lui-icon  lui-icon--large" style="${!layout.pShowIcon || layout.pLaunchMode == 'hover' || layout.pTourItems.length == 0 ? 'display:none;' : ''}" id="${ownId}_play"></span> 
-            //     ${layout.pTourItems.length == 0 ? "💬 Get Started" : layout.pTextStart}
-            // </div>
 
-
+            if (showNoItemsHint) {
+                $(`#${ownId}_parent .guided-tour-no-items-hint`).click(function () {
+                    if (qlik.navigation.getMode() == 'edit') picker.pickersOn(ownId, enigma, null, layout.pTourItems)
+                })
+            }
 
             $(`[tid="${ownId}"] ${qlikCss.v(0).innerObject}`).css('background-color', layout.pExtensionBgColor); // set bg-color in Sense Client
 
@@ -199,8 +216,10 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
             if (layout.pLaunchMode == 'click') {
                 //---------------------------------------------------
                 // Standard-Mode ... plays entire tour on click, no auto-launch nor mouse-over
+                $(`.guided-tour-helpicon-${ownId}`).remove(); // remove help icons, if still rendered.
 
-                $(`#${ownId}_start`).click(function () {
+                // $(`#${ownId}_play`).click(function () {
+                $(`.guided-tour-launch-${ownId}`).click(function () {
                     if (!getActiveTour(ownId, currSheet, layout)) {
 
                         // tooltips.cacheHypercube(ownId, enigma, objFieldName, layout.pTourField, layout.pTourSelectVal)
@@ -223,6 +242,7 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
                         const hoverModeSwitch = $(`#${ownId}_hovermode`).is(':checked');
                         if (hoverModeSwitch == true) {
                             console.log(`switch tour ${ownId} to "on"`);
+                            $('.guided-tour-picker').remove();  // hide pickers, if still open
                             //tooltips.cacheHypercube(ownId, enigma, objFieldName, layout.pTourField, layout.pTourSelectVal)
                             //    .then(function (hcube) {
                             //guided_tour_global.tooltipsCache[ownId] = hcube;
@@ -230,7 +250,8 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
                                 //layout.pTourItems.forEach((tooltipDef, tooltipNo) => {
                                 const divId = tooltipDef.selector.split(':').slice(-1)[0]; // use the text after : in the selector property;
 
-                                var newDiv = $(`<div style="${layout.pHoverIconCustomCSS}" class="guided-tour-helpicon">${layout.pHoverIconText}</div>`);
+                                var newDiv = $(`<div style="${layout.pHoverIconCustomCSS}" class="guided-tour-helpicon  guided-tour-helpicon-${ownId}">
+                                    ${layout.pHoverIconText}</div>`);
                                 newDiv
                                     .on('click', () => {
                                         if ($('#' + ownId + '_tooltip').length == 0) {
@@ -245,6 +266,9 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
                                     .on('mouseout', () => {
                                         // console.log(tooltipNo, 'Closing');
                                         $('#' + ownId + '_tooltip').remove();
+                                        guided_tour_global.activeTooltip[currSheet][ownId] = -1; // set activeTooltip to armed
+                                        // stop rotating the play icon
+                                        tooltips.playIcon(ownId);
                                     });
                                 $('[tid="' + divId + '"]').prepend(newDiv)
 
@@ -292,7 +316,7 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
                              .catch(function () { });
                      }
                      // on click, tour will be restarted.
-                     $(`#${ownId}_start`).click(function () {
+                     $(`#${ownId}_play`).click(function () {
                          if (!getActiveTour(ownId, currSheet, layout)) {
                              tooltips.cacheHypercube(ownId, enigma, objFieldName, layout.pTourField, layout.pTourSelectVal)
                                  .then(function (hcube) {
@@ -339,7 +363,7 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
                          if (layout.pConsoleLog) console.log(ownId, 'auto-once suppressed because ' + (mode != 'analysis' ? (mode + '-mode') : 'other tour active'));
                      }
                      // on click, tour will be restarted.
-                     $(`#${ownId}_start`).click(function () {
+                     $(`#${ownId}_play`).click(function () {
                          if (!getActiveTour(ownId, currSheet, layout)) {
                              tooltips.cacheHypercube(ownId, enigma, objFieldName, layout.pTourField, layout.pTourSelectVal)
                                  .then(function (hcube) {
@@ -386,7 +410,7 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
                          if (layout.pConsoleLog) console.log(ownId, 'auto-once-p-obj suppressed because ' + (mode != 'analysis' ? (mode + '-mode') : 'other tour active'));
                      }
                      // on click, tour will be restarted.
-                     $(`#${ownId}_start`).click(function () {
+                     $(`#${ownId}_play`).click(function () {
                          if (!getActiveTour(ownId, currSheet, layout)) {
                              tooltips.cacheHypercube(ownId, enigma, objFieldName, layout.pTourField, layout.pTourSelectVal)
                                  .then(function (hcube) {
