@@ -93,7 +93,7 @@ define(["jquery"], function ($) {
             // missing
 
             pickersOff(ownId); // remove previous divs
-            var position = itemPos || pTourItems.length + 1;
+            var position = typeof itemPos == 'number' ? itemPos : (pTourItems.length + 1);
             const posCorr = $(`[tid="${ownId}"]`).offset();
 
             const addOrRemoveObj = function (objTid, ownId, enigma, i) {

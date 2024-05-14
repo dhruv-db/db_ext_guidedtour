@@ -163,7 +163,7 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
             // calculate some settings for the HTML, what divs to show, the switch position ...
             const switchPosition = ($('#' + ownId + '_hovermode').is(':checked') && $(`#guided-tour-helpicon-${ownId}`).length) ? 'checked' : '';
             const showSwitch = layout.pLaunchMode == 'hover' && layout.pTourItems.length > 0;
-            const showPlayOrRotate = layout.pLaunchMode != 'hover' && layout.pTourItems.length > 0;
+            const showPlayOrRotate = layout.pLaunchMode != 'hover' && layout.pTourItems.length > 0 && layout.pShowIcon;
             const showNoItemsHint = layout.pTourItems.length == 0;
 
             $element.html(`
@@ -218,7 +218,7 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
                 // Standard-Mode ... plays entire tour on click, no auto-launch nor mouse-over
                 $(`.guided-tour-helpicon-${ownId}`).remove(); // remove help icons, if still rendered.
 
-                // $(`#${ownId}_play`).click(function () {
+                // $(`#${ownId}_play`).click(function () {1
                 $(`.guided-tour-launch-${ownId}`).click(function () {
                     if (!getActiveTour(ownId, currSheet, layout)) {
 
@@ -243,25 +243,25 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
                         if (hoverModeSwitch == true) {
                             console.log(`switch tour ${ownId} to "on"`);
                             $('.guided-tour-picker').remove();  // hide pickers, if still open
-                            //tooltips.cacheHypercube(ownId, enigma, objFieldName, layout.pTourField, layout.pTourSelectVal)
-                            //    .then(function (hcube) {
-                            //guided_tour_global.tooltipsCache[ownId] = hcube;
+                            $(`#${ownId}_tooltip`).remove(); // close open tooltips, if any
+
                             guided_tour_global.tooltipsCache[ownId].forEach((tooltipDef, tooltipNo) => {
                                 //layout.pTourItems.forEach((tooltipDef, tooltipNo) => {
                                 const divId = tooltipDef.selector.split(':').slice(-1)[0]; // use the text after : in the selector property;
 
-                                var newDiv = $(`<div style="${layout.pHoverIconCustomCSS}" class="guided-tour-helpicon  guided-tour-helpicon-${ownId}">
+                                var newDiv = $(`<div style="${layout.pHoverIconCustomCSS}" 
+                                    class="guided-tour-helpicon  guided-tour-helpicon-${ownId}">
                                     ${layout.pHoverIconText}</div>`);
                                 newDiv
                                     .on('click', () => {
-                                        if ($('#' + ownId + '_tooltip').length == 0) {
-                                            tooltips.play3(ownId, layout, tooltipNo, false, enigma, guided_tour_global, currSheet, false);
-                                        }
+                                        // if ($('#' + ownId + '_tooltip').length == 0) {
+                                        tooltips.play3(ownId, layout, tooltipNo, false, enigma, guided_tour_global, currSheet, false);
+                                        // }
                                     })
                                     .on('mouseover', () => {
-                                        if ($('#' + ownId + '_tooltip').length == 0) {
-                                            tooltips.play3(ownId, layout, tooltipNo, false, enigma, guided_tour_global, currSheet, false);
-                                        }
+                                        // if ($('#' + ownId + '_tooltip').length == 0) {
+                                        tooltips.play3(ownId, layout, tooltipNo, false, enigma, guided_tour_global, currSheet, false);
+                                        // }
                                     })
                                     .on('mouseout', () => {
                                         // console.log(tooltipNo, 'Closing');
@@ -270,7 +270,8 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
                                         // stop rotating the play icon
                                         tooltips.playIcon(ownId);
                                     });
-                                $('[tid="' + divId + '"]').prepend(newDiv)
+                                $('[tid="' + divId + '"] .guided-tour-helpicon').remove(); // if previous help icon is there, remove it
+                                $('[tid="' + divId + '"]').prepend(newDiv);
 
                                 // $('[tid="' + divId + '"]')
                                 //     .on('mouseover', () => {
@@ -291,12 +292,7 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
                             // switch to "off", unbind the events;
                             console.log(`switch tour ${ownId} to "off"`);
                             $('.guided-tour-helpicon').remove();
-                            // guided_tour_global.tooltipsCache[ownId].forEach((tooltipDef, tooltipNo) => {
-                            //     // layout.pTourItems.forEach((tooltipDef, tooltipNo) => {
-                            //     const divId = tooltipDef.selector.split(':').slice(-1)[0]; // use the text after : in the selector property;
-                            //     $('[tid="' + divId + '"]').unbind('mouseover');
-                            //     $('[tid="' + divId + '"]').unbind('mouseout');
-                            // });
+                            $(`#${ownId}_tooltip`).remove();
                             guided_tour_global.activeTooltip[currSheet][ownId] = -2;
                         }
                     }

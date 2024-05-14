@@ -364,7 +364,7 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
                     $(rootContainer).append(`
                     <div class="lui-tooltip  guided-tour-toolip-parent" id="${ownId}_tooltip" style="${tooltipStyle};display:none;position:absolute;">
                         <!--${selector}-->
-                        <span style="opacity:0.6;">${tooltipNo + 1}/${guided_tour_global.tooltipsCache[ownId].length}</span>
+                        <span style="opacity:${layout.pLaunchMode == 'hover' ? 0 : 0.6};">${tooltipNo + 1}/${guided_tour_global.tooltipsCache[ownId].length}</span>
                         <span class="lui-icon  lui-icon--close" style="float:right;cursor:pointer;${layout.pLaunchMode == 'hover' && !isPreviewMode ? 'display:none;' : ''}" id="${ownId}_quit"></span>
                         ${knownObjId == 0 ? '<br/><div class="guided-tour-err">Object <strong>' + qObjId + '</strong> not found!</div>' : '<br/>'}
                         ${knownObjId > 1 ? '<br/><div class="guided-tour-err"><strong>' + qObjId + '</strong> selects ' + knownObjId + ' objects!</div>' : '<br/>'}

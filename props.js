@@ -6,7 +6,8 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
     //const ext = 'db_ext_guided_tour_3';
     const ppSection = qlikCss.v(0).ppSection; // class for accordeons top <div>
     const ppNmDi = qlikCss.v(0).ppNmDi; // class for sub-accordeons <li>
-    const ppNmDi_Content = qlikCss.v(0).ppNmDi_Content; // class for <div> inside ppNmDi that should get the click event
+    const ppNmDi_header = qlikCss.v(0).ppNmDi_header;
+    const ppNmDi_content = qlikCss.v(0).ppNmDi_content; // class for <div> inside ppNmDi that should get the click event
     const accordionHeaderCollapsed = qlikCss.v(0).accordionHeaderCollapsed;
 
     return {
@@ -50,6 +51,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
                                 component: "button",
                                 show: function (arg) { return !arg.selector },
                                 action: function (arg, context) {
+                                    if (context.layout.pConsoleLog) console.log('pickerButtonClick', arg);
                                     pickerButtonClick(arg, context, enigma, guided_tour_global);
                                 }
                             },
@@ -348,7 +350,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
                             label: 'Default tooltip border color',
                             type: 'string',
                             ref: 'pTooltipBorderColor',
-                            defaultValue: 'rgba(0, 0, 0, 0.15)',
+                            defaultValue: '#888888',
                             expression: 'optional'
                         },
                     ])
@@ -641,7 +643,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
             // check all items if the selector is valid and mark the item with red background if not
             arg.pTourItems.forEach((tourItem, i) => {
                 const selector = tourItem.selector.split(':').splice(-1)[0];
-                const accordeonElem = $(`${ppSection}:nth-child(${domPos + 1}) li:nth-child(${i + 1}) ${ppNmDi_Content}`);
+                const accordeonElem = $(`${ppSection}:nth-child(${domPos + 1}) li:nth-child(${i + 1}) ${ppNmDi_content}`);
                 if ($(`[tid="${selector}"]`).length == 0) {
                     // The given selector of that tour item is invalid
                     accordeonElem.css("background", "#b98888").css("color", "white");
@@ -650,11 +652,16 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
                 }
             })
 
-            $(`${ppSection}:nth-child(${domPos + 1}) ${ppNmDi_Content}`)
+            $(`${ppSection}:nth-child(${domPos + 1}) ${ppNmDi_content}`)
                 .not('[guided-tour-event="click"]')
                 //.css('border', 'gray 1px solid')
                 .attr('guided-tour-event', 'click') // add this attribute and the click event0
                 .click(function (e) {
+                    var expanded = true;
+                    // figure out if the current item in the accordion is collapsed or expanded
+                    if ($(e.currentTarget).closest(ppNmDi_header).length) {
+                        if ($(e.currentTarget).closest(ppNmDi_header).hasClass('expanded')) expanded = false;
+                    }
                     console.log('guided-tour-click-item', $(e.currentTarget)[0].innerText);
                     const selector = $(e.currentTarget)[0].innerText.split(':').splice(-1)[0];
                     // const closestInput = $(e.currentTarget);//.closest('li').find('[tid="selector"] .label');
@@ -663,7 +670,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
                         if (elem.length) {
                             const bgBefore = elem.css('background-color');
                             elem.animate({
-                                backgroundColor: 'yellow'
+                                backgroundColor: expanded ? 'green' : 'yellow'
                             }, 300, function () {
                                 elem.css('background-color', bgBefore);
                             });
@@ -693,7 +700,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
 
         // } else {
 
-        // console.log('found in pos', itemPos);
+        if (context.layout.pConsoleLog) console.log('You are within itemPos', itemPos);
         const domPos = getTourItemsSectionPos();
         if (domPos) {
             //console.log('found in DOM', domPos);
