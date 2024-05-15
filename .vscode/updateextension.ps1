@@ -111,7 +111,7 @@ while ((Get-Date) -lt ($startTime.AddSeconds(8))) {
             $jsonString | Set-Content -Path "$($folder)$($rnd)\$($extension_temp_name).qext"
             $extension_name = $extension_temp_name
         }
-        else{
+        else {
 
             #Write-Host Get-ChildItem "$($folder)$($rnd)
             #Build Obfuscated files
