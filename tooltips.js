@@ -261,7 +261,7 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
             // increase the tours counter and highlight next object
 
             // rotate the play icon
-            if (layout.pLaunchMode != 'hover') rotateIcon(ownId);
+            if (layout.pLaunchMode != 'hover' && !isPreviewMode) rotateIcon(ownId);
 
             const prevElem = guided_tour_global.tooltipsCache[ownId][guided_tour_global.activeTooltip[currSheet][ownId]] ?
                 guided_tour_global.tooltipsCache[ownId][guided_tour_global.activeTooltip[currSheet][ownId]] : null;
@@ -500,6 +500,14 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
 
         playIcon: function (ownId) {
             return playIcon(ownId)
+        },
+
+        endTour: function (ownId, guided_tour_global, currSheet) {
+            // ends the given tour
+            $(`#${ownId}_tooltip`).remove();
+            if (guided_tour_global.activeTooltip[currSheet]) {
+                guided_tour_global.activeTooltip[currSheet][ownId] == -2;
+            }
         }
     }
 })

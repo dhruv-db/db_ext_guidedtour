@@ -137,8 +137,17 @@ define(["jquery"], function ($) {
                             }
                             position = prop.pTourItems.length
                         }
-                        // save the changed properties (array of tooltips is now shorter)
+                        // save the changed properties (array of tooltips is now changed)
                         obj.setProperties(prop);
+                        enigma.getObject(objTid).then(obj2 => {
+                            obj2.getProperties().then(prop2 => {
+                                if (!Array.isArray(prop2.guidedTourAliases)) prop2.guidedTourAliases = [];
+                                if (prop2.guidedTourAliases.indexOf(objTid) == -1) prop2.guidedTourAliases.push(objTid);
+                                obj2.setProperties(prop2)
+                                    .then(() => console.log('patched object', objTid))
+                                    .catch(err => console.error(err));
+                            })
+                        })
                         pickersRefresh(ownId, prop.pTourItems)
 
                     })

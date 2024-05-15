@@ -17,7 +17,9 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
 
         tooltipsCache: {}, // the tour items of each tour will be put here under the key of the objectId when started 
 
-        noLicenseWarning: {} // in order not to suppress repeating license warnings , every extension id is added here once the warning was shown
+        noLicenseWarning: {}, // in order not to suppress repeating license warnings , every extension id is added here once the warning was shown
+
+        objAliases: {}
     }
 
     const lStorageDefault = '{"openedAt":"18991231000000", "objectsOpened": {}}';
@@ -40,15 +42,22 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
     function getActiveTour(ownId, currSheet, layout) {
         // returns the tour id which is currently active, or false if no tour is active
         var activeTour = false;
-        for (const sheetId in guided_tour_global.activeTooltip) {
-            for (const tourId in guided_tour_global.activeTooltip[sheetId]) {
-                if (guided_tour_global.activeTooltip[sheetId][tourId] > -2) {
-                    if (tourId == ownId) {
-                        // console.log(ownId, `This tour is already active.`);
-                    } else {
-                        if (layout.pConsoleLog) console.log(ownId, `other tour ${tourId} is already active.`);
+        if ($('.guided-tour-toolip-parent').length == 0) {
+            // no tour is open on this sheet. Set all tours of this sheet to -2
+            for (const tourId in guided_tour_global.activeTooltip[currSheet]) {
+                guided_tour_global.activeTooltip[currSheet][tourId] = -2
+            }
+        } else {
+            for (const sheetId in guided_tour_global.activeTooltip) {
+                for (const tourId in guided_tour_global.activeTooltip[sheetId]) {
+                    if (guided_tour_global.activeTooltip[sheetId][tourId] > -2) {
+                        if (tourId == ownId) {
+                            // console.log(ownId, `This tour is already active.`);
+                        } else {
+                            if (layout.pConsoleLog) console.log(ownId, `other tour ${tourId} is already active.`);
+                        }
+                        activeTour = tourId;
                     }
-                    activeTour = tourId;
                 }
             }
         }
@@ -96,7 +105,7 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
                 props.tourItems(qlik, guided_tour_global),
                 props.tourSettings(qlik.currApp(this), guided_tour_global),
                 props.licensing(qlik.currApp(this)),
-                props.about(guided_tour_global.qext)
+                props.about(guided_tour_global)
             ]
         },
         snapshot: {

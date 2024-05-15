@@ -1,7 +1,7 @@
 // props.js: Extension properties (accordeon menu) externalized
 
-define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-selectors"], function
-    (qlik, $, tooltips, license, picker, qlikCss) {
+define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects", "./qlik-css-selectors"], function
+    (qlik, $, tooltips, license, picker, findObjects, qlikCss) {
 
     //const ext = 'db_ext_guided_tour_3';
     const ppSection = qlikCss.v(0).ppSection; // class for accordeons top <div>
@@ -19,7 +19,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
 
             return {
                 label: function (arg, context) {
-                    registerEvents(arg, context, enigma, guided_tour_global);
+                    registerEvents(arg, context, enigma, guided_tour_global, currSheet);
                     return `💬 Tooltip Items (${arg.pTourItems ? arg.pTourItems.length : 0})`
                 },
                 type: 'items',
@@ -60,7 +60,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
                                 component: "button",
                                 show: function (arg) { return arg.selector.length > 0 },
                                 action: function (arg, context) {
-                                    previewButtonClick(arg, context, enigma, guided_tour_global, currSheet);
+                                    previewButtonClick(getItemPos(arg, context), context, enigma, guided_tour_global, currSheet);
                                 }
                             },
                             html: {
@@ -115,12 +115,10 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
                                     }
                                 }
                             }
-
                         }
                     }
                 ]
             }
-
         },
 
         tourSettings: function (app, qlik) {
@@ -482,13 +480,13 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
             }
         },
 
-        about: function (qext) {
+        about: function (guided_tour_global) {
             return {
                 label: 'ℹ️ About this extension',
                 type: 'items',
                 items: [
                     {
-                        label: function (arg) { return 'Installed version: ' + qext.version },
+                        label: function (arg) { return 'Installed version: ' + guided_tour_global.qext.version },
                         component: "link",
                         url: '../extensions/db_ext_guided_tour_3/db_ext_guided_tour_3.qext'
                     },
@@ -515,6 +513,16 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
                         action: function (arg) {
                             console.log(arg);
                             window.open('https://insight.databridge.ch/items/guided-tour-extension', '_blank');
+                        }
+                    },
+                    {
+                        label: "Search SheetObjects",
+                        component: "button",
+                        action: function (arg) {
+                            const app = qlik.currApp();
+                            const currSheet = qlik.navigation.getCurrentSheetId().sheetId;
+                            // const enigma = app.model.enigmaModel;
+                            findObjects.getSheetObjects(app, currSheet, guided_tour_global);
                         }
                     }
                 ]
@@ -599,7 +607,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
         return itemPos
     }
 
-    function registerEvents(arg, context, enigma) {
+    function registerEvents(arg, context, enigma, guided_tour_global, currSheet) {
         // function to register click event in the accordeon when the Tooltip Items section
         // is clicked
 
@@ -646,9 +654,13 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
                 const accordeonElem = $(`${ppSection}:nth-child(${domPos + 1}) li:nth-child(${i + 1}) ${ppNmDi_content}`);
                 if ($(`[tid="${selector}"]`).length == 0) {
                     // The given selector of that tour item is invalid
-                    accordeonElem.css("background", "#b98888").css("color", "white");
+                    accordeonElem.css('background', '#b98888').css('color', 'white');
+                    if (selector in guided_tour_global.objAliases) {
+                        // object was be found under a new tid
+                        accordeonElem.css('background', 'orange').css('color', 'white');
+                    }
                 } else {
-                    accordeonElem.css("background", "").css("color", "");
+                    accordeonElem.css('background', '').css('color', '');
                 }
             })
 
@@ -656,6 +668,20 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
                 .not('[guided-tour-event="click"]')
                 //.css('border', 'gray 1px solid')
                 .attr('guided-tour-event', 'click') // add this attribute and the click event0
+                .on('mouseover', function (e) {
+                    const selector = $(e.currentTarget)[0].innerText.split(':').splice(-1)[0];
+                    // const closestInput = $(e.currentTarget);//.closest('li').find('[tid="selector"] .label');
+                    if (selector) {
+                        $(`[tid="${selector}"]`).css('background-color', 'green');
+                    }
+                })
+                .on('mouseout', function (e) {
+                    const selector = $(e.currentTarget)[0].innerText.split(':').splice(-1)[0];
+                    // const closestInput = $(e.currentTarget);//.closest('li').find('[tid="selector"] .label');
+                    if (selector) {
+                        $(`[tid="${selector}"]`).css('background-color', '');
+                    }
+                })
                 .click(function (e) {
                     var expanded = true;
                     // figure out if the current item in the accordion is collapsed or expanded
@@ -663,22 +689,26 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
                         if ($(e.currentTarget).closest(ppNmDi_header).hasClass('expanded')) expanded = false;
                     }
                     console.log('guided-tour-click-item', $(e.currentTarget)[0].innerText);
-                    const selector = $(e.currentTarget)[0].innerText.split(':').splice(-1)[0];
+                    const itemTitle = $(e.currentTarget)[0].innerText;
+                    const targetObjId = itemTitle.split(':').splice(-1)[0];
                     // const closestInput = $(e.currentTarget);//.closest('li').find('[tid="selector"] .label');
-                    if (selector) {
-                        const elem = $(`[tid="${selector}"]`);
-                        if (elem.length) {
-                            const bgBefore = elem.css('background-color');
-                            elem.animate({
-                                backgroundColor: expanded ? 'green' : 'yellow'
-                            }, 300, function () {
-                                elem.css('background-color', bgBefore);
-                            });
-                            // closestInput.css('border', '1px solid green');
+                    if (targetObjId) {
+                        if (expanded) {
+                            const itemPos = context.properties.pTourItems.findIndex(obj => obj.selector == itemTitle);
+                            previewButtonClick(itemPos, context, enigma, guided_tour_global, currSheet);
                         } else {
-                            // bad selector
-                            // closestInput.css('border', '2px solid red');
+                            tooltips.endTour(ownId, guided_tour_global, currSheet)
                         }
+                        // const elem = $(`[tid="${selector}"]`);
+                        // if (elem.length) {
+
+                        // const bgBefore = elem.css('background-color');
+                        // elem.animate({
+                        //     backgroundColor: expanded ? 'green' : 'yellow'
+                        // }, 300, function () {
+                        //     elem.css('background-color', bgBefore);
+                        // });
+                        // }
                     }
                 });
         } else {
@@ -718,10 +748,9 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./qlik-css-sel
         // }
     }
 
-    function previewButtonClick(arg, context, enigma, guided_tour_global, currSheet) {
+    function previewButtonClick(itemPos, context, enigma, guided_tour_global, currSheet) {
 
         // in the properties of Tooltip icons the Preview Tooltip button was clicked.
-        const itemPos = getItemPos(arg, context);
 
         var isPreviewMode = true;
         // put current properties into tooltipsCache
