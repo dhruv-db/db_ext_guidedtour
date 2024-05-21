@@ -204,7 +204,7 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
         const arrowHeadSize = layout.pArrowHead || 16;
         const rootContainer = guided_tour_global.isSingleMode ? qlikCss.v(0).stageContainer : qlikCss.v(0).pageContainer;
         const finallyScrollTo = qlikCss.v(0).sheetTitle;
-        const opacity = layout.pLaunchMode == 'hover' ? 1 : (layout.pOpacity || 1);
+        const opacity = /*layout.pLaunchMode == 'hover' ? 1 :*/ (layout.pOpacity || 1);
         const licensed = guided_tour_global.licensedObjs[ownId];
         const isLast = tooltipNo >= (guided_tour_global.tooltipsCache[ownId].length - 1);
 
@@ -228,16 +228,16 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
             }
 
             if (isLast) {
-                if (!licensed) {
-                    // alert(isPreviewMode);
-                    // after the last item of a tour, show databridge ad for a second
-                    if (!isPreviewMode) {
-                        $(`#${ownId}_tooltip`).children().css('opacity', 0);
-                        $(`#${ownId}_text`).after(`<div style="position:absolute; top:35%; color:${$('#' + ownId + '_next').css('color')}; width:100%; left:-3px; text-align:center; font-size:medium;">
-                        Tour sponsored by <a href="https://www.databridge.ch" target="_blank" style="color:${$('#' + ownId + '_next').css('color')};">data/\\bridge</a>
-                        </div>`);
-                    }
-                }
+                // if (!licensed) {
+                //     // alert(isPreviewMode);
+                //     // after the last item of a tour, show databridge ad for a second
+                //     if (!isPreviewMode) {
+                //         $(`#${ownId}_tooltip`).children().css('opacity', 0);
+                //         $(`#${ownId}_text`).after(`<div style="position:absolute; top:35%; color:${$('#' + ownId + '_next').css('color')}; width:100%; left:-3px; text-align:center; font-size:medium;">
+                //         Tour sponsored by <a href="https://www.databridge.ch" target="_blank" style="color:${$('#' + ownId + '_next').css('color')};">data/\\bridge</a>
+                //         </div>`);
+                //     }
+                // }
                 function delay(time) {
                     return new Promise(resolve => setTimeout(resolve, time));
                 }
@@ -362,16 +362,30 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
                     // add the tooltip div
 
                     $(rootContainer).append(`
-                    <div class="lui-tooltip  guided-tour-toolip-parent" id="${ownId}_tooltip" style="${tooltipStyle};display:none;position:absolute;">
+                    <div class="lui-tooltip  guided-tour-toolip-parent" id="${ownId}_tooltip" 
+                        style="${tooltipStyle};display:none;position:absolute;">
                         <!--${selector}-->
-                        <span style="opacity:${layout.pLaunchMode == 'hover' ? 0 : 0.6};">${tooltipNo + 1}/${guided_tour_global.tooltipsCache[ownId].length}</span>
-                        <span class="lui-icon  lui-icon--close" style="float:right;cursor:pointer;${layout.pLaunchMode == 'hover' && !isPreviewMode ? 'display:none;' : ''}" id="${ownId}_quit"></span>
+                        <span style="opacity:${layout.pLaunchMode == 'hover' ? 0 : 0.6};">
+                            ${tooltipNo + 1}/${guided_tour_global.tooltipsCache[ownId].length}
+                        </span>
+                        <span class="lui-icon  lui-icon--close" 
+                            style="float:right;cursor:pointer;${layout.pLaunchMode == 'hover' && !isPreviewMode ? 'display:none;' : ''}" id="${ownId}_quit">
+                        </span>
                         ${knownObjId == 0 ? '<br/><div class="guided-tour-err">Object <strong>' + qObjId + '</strong> not found!</div>' : '<br/>'}
                         ${knownObjId > 1 ? '<br/><div class="guided-tour-err"><strong>' + qObjId + '</strong> selects ' + knownObjId + ' objects!</div>' : '<br/>'}
                         <div style="margin-top:10px;" id="${ownId}_text">
                         	${vizId ? '<!--placeholder for chart-->' : html}
                         </div>
-                        <a class="lui-button  guided-tour-next" style="${layout.pLaunchMode == 'hover' ? 'opacity:0;' : ''}" id="${ownId}_next">${isLast ? layout.pTextDone : layout.pTextNext}</a>
+                        <${licensed ? '!--' : ''}div class="guided-tour-ad">
+                            &#x73;p&#x6f;n&#x73;o&#x72;e&#x64;&nbsp;&#x62;y&nbsp;
+                            <a href="https://www.databridge.ch" target="_blank">
+                                &#x64;a&#x74;a&#x2f;&#x5c;b&#x72;i&#x64;g&#x65;
+                            </a>
+                        </div${licensed ? '--' : ''}>
+                        <a class="lui-button  guided-tour-next" 
+                            style="${layout.pLaunchMode == 'hover' ? 'opacity:0;' : ''}" id="${ownId}_next">
+                            ${isLast ? layout.pTextDone : layout.pTextNext}
+                        </a>
                         <div class="lui-tooltip__arrow"></div>
                     </div>`);
                     // add possible more styles
@@ -440,6 +454,16 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
         }
     }
 
+    function endTour(ownId, guided_tour_global, currSheet, layout, resetTo) {
+        // ends the given tour
+        $(`#${ownId}_tooltip`).remove();
+        if (guided_tour_global.activeTooltip[currSheet]) {
+            guided_tour_global.activeTooltip[currSheet][ownId] = resetTo || -2;
+        }
+        if ((layout.pOpacity || 1) < 1) $('.cell').fadeTo('fast', 1, () => { });
+        playIcon(ownId);
+    }
+
     function leonardoMsg(ownId, title, detail, ok, cancel, inverse) {
         //console.log('leonardoMsg', ownId, title, detail, ok, cancel, inverse);
         // This html was found on https://qlik-oss.github.io/leonardo-ui/dialog.html
@@ -502,12 +526,8 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
             return playIcon(ownId)
         },
 
-        endTour: function (ownId, guided_tour_global, currSheet) {
-            // ends the given tour
-            $(`#${ownId}_tooltip`).remove();
-            if (guided_tour_global.activeTooltip[currSheet]) {
-                guided_tour_global.activeTooltip[currSheet][ownId] == -2;
-            }
+        endTour: function (ownId, guided_tour_global, currSheet, layout, resetTo) {
+            return endTour(ownId, guided_tour_global, currSheet, layout, resetTo)
         }
     }
 })

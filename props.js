@@ -49,10 +49,10 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                             picker: {
                                 label: "Pick object",
                                 component: "button",
-                                show: function (arg) { return !arg.selector },
+                                show: function (arg) { return !arg.selector || !selectorFound(arg.selector) },
                                 action: function (arg, context) {
                                     if (context.layout.pConsoleLog) console.log('pickerButtonClick', arg);
-                                    pickerButtonClick(arg, context, enigma, guided_tour_global);
+                                    pickerButtonClick(arg, context, enigma, guided_tour_global, currSheet);
                                 }
                             },
                             preview: {
@@ -91,6 +91,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                                                 rows: 4,
                                                 maxlength: 4000,
                                                 expression: 'optional',
+                                                //defaultValue: '/* background: #303030;*/\n/*color: white;*/'
                                             },
                                             orientation: {
                                                 ref: "orientation",
@@ -277,7 +278,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                             component: "textarea",
                             rows: 4,
                             maxlength: 4000,
-                            defaultValue: 'color: #000000;background-color: #d3d3d3;top:-7px;',
+                            defaultValue: 'color: #000000;\nbackground: #d3d3d3;\ntop:-7px;',
                             expression: 'optional',
                             show: function (arg) { return arg.pLaunchMode == 'hover' }
                         },
@@ -428,6 +429,16 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                             defaultValue: false,
                             ref: "pConsoleLog",
                             label: "console.log debugging info"
+                        },
+                        {
+                            label: "Search SheetObjects",
+                            component: "button",
+                            action: function (arg, context) {
+                                const app = qlik.currApp();
+                                const currSheet = qlik.navigation.getCurrentSheetId().sheetId;
+                                // const enigma = app.model.enigmaModel;
+                                findObjects.getSheetObjects(app, currSheet, guided_tour_global, context.properties.qInfo.qId);
+                            }
                         }
                     ])
                 ]
@@ -513,16 +524,6 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                         action: function (arg) {
                             console.log(arg);
                             window.open('https://insight.databridge.ch/items/guided-tour-extension', '_blank');
-                        }
-                    },
-                    {
-                        label: "Search SheetObjects",
-                        component: "button",
-                        action: function (arg) {
-                            const app = qlik.currApp();
-                            const currSheet = qlik.navigation.getCurrentSheetId().sheetId;
-                            // const enigma = app.model.enigmaModel;
-                            findObjects.getSheetObjects(app, currSheet, guided_tour_global);
                         }
                     }
                 ]
@@ -697,7 +698,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                             const itemPos = context.properties.pTourItems.findIndex(obj => obj.selector == itemTitle);
                             previewButtonClick(itemPos, context, enigma, guided_tour_global, currSheet);
                         } else {
-                            tooltips.endTour(ownId, guided_tour_global, currSheet)
+                            tooltips.endTour(ownId, guided_tour_global, currSheet, context.properties)
                         }
                         // const elem = $(`[tid="${selector}"]`);
                         // if (elem.length) {
@@ -716,10 +717,11 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
         }
     }
 
-    function pickerButtonClick(arg, context, enigma, guided_tour_global) {
+    function pickerButtonClick(arg, context, enigma, guided_tour_global, currSheet) {
 
         // in the properties of Tooltip icons the Pick Object button was clicked.
         const inputRef = 'selector';  // property name 
+        tooltips.endTour(context.properties.qInfo.qId, guided_tour_global, currSheet, context.properties, -2)
 
         var itemPos = getItemPos(arg, context);
 

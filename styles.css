@@ -112,3 +112,13 @@
   background-color: gray;
   color: white;
 }
+
+.guided-tour-toolip-parent li {
+  margin-left: 13px;
+}
+
+.guided-tour-ad {
+  position: absolute;
+  bottom: 10px;
+  opacity: 0.3;
+}
