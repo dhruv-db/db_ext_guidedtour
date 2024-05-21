@@ -1,8 +1,8 @@
 define(["jquery"], function ($) {
 
-    const stylesRemove = { background: 'white', color: 'gray', cursor: 'pointer' }
-    const stylesAdd = { background: 'white', color: 'green', cursor: 'pointer' }
-    const stylesSelf = { background: 'orange', color: 'white', cursor: 'pointer' }
+    // const stylesRemove = { background: 'white', color: 'gray', cursor: 'pointer' }
+    // const stylesAdd = { background: 'white', color: 'green', cursor: 'pointer' }
+    // const stylesSelf = { background: 'orange', color: 'white', cursor: 'pointer' }
 
 
     function pickerDiv(id, ref) {
@@ -86,13 +86,18 @@ define(["jquery"], function ($) {
             pickersOff(ownId);
         },
 
-        pickersOn: function (ownId, enigma, itemPos, pTourItems) {
+        pickersOn: function (ownId, enigma, itemPos, layout, guided_tour_global, currSheet, tooltipsJs) {
 
             // itemPos is an optional argument: it is the position within the pTourItems array 
             // that the first added object's tid (where (+) is clicked) gets added to. If this is
             // missing
 
+            var pTourItems = layout.pTourItems;
             pickersOff(ownId); // remove previous divs
+
+            tooltipsJs.endTour(ownId, guided_tour_global, currSheet, layout, -2)
+            $('.guided-tour-helpicon').remove();
+
             var position = typeof itemPos == 'number' ? itemPos : (pTourItems.length + 1);
             const posCorr = $(`[tid="${ownId}"]`).offset();
 
