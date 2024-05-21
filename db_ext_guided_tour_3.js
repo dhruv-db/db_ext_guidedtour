@@ -243,6 +243,9 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
                         tooltips.play3(ownId, layout, 0, false, enigma, guided_tour_global, currSheet);
                         // })
                         // .catch(function () { });
+                    } else {
+                        // console.log('already playing', getActiveTour(ownId, currSheet, layout));
+                        tooltips.endTour(ownId, guided_tour_global, currSheet, layout, -2);
                     }
                 })
                 //---------------------------------------------------

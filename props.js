@@ -282,9 +282,6 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                             expression: 'optional',
                             show: function (arg) { return arg.pLaunchMode == 'hover' }
                         },
-
-
-
                         {
                             label: 'Text for Next button',
                             type: 'string',
@@ -352,7 +349,19 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                             defaultValue: '#888888',
                             expression: 'optional'
                         },
+                        {
+                            label: function (arg) { return 'Opacity of inactive objects: ' + arg.pOpacity },
+                            type: 'number',
+                            ref: 'pOpacity',
+                            component: "slider",
+                            defaultValue: 0.1,
+                            min: 0.1,
+                            max: 1,
+                            step: 0.1
+                            //show: function (arg) { return arg.pLaunchMode != 'hover' }
+                        }
                     ])
+                    /*
                     , subSection('Auto-launch Settings (Tour)\u2605', [
                         {
                             label: "These settings apply only if you have a licensed version.",
@@ -411,19 +420,8 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                             }
                         }
                     ], 'pLaunchMode', 'auto-once-p-obj'  // only show settings section if pLaunchMode == 'auto-once-p-obj'
-                    )
+                    )*/
                     , subSection('Advanced Settings', [
-                        {
-                            label: function (arg) { return 'Opacity of inactive objects: ' + arg.pOpacity },
-                            type: 'number',
-                            ref: 'pOpacity',
-                            component: "slider",
-                            defaultValue: 0.1,
-                            min: 0.1,
-                            max: 1,
-                            step: 0.1,
-                            show: function (arg) { return arg.pLaunchMode != 'hover' }
-                        },
                         {
                             type: "boolean",
                             defaultValue: false,
