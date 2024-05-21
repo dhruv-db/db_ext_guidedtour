@@ -142,11 +142,11 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                         options: [
                             {
                                 value: "click",
-                                label: "Click to run tour"
+                                label: "Sequential Items Tour"
                             },
                             {
                                 value: "hover",
-                                label: "Icons for every object \u2605"
+                                label: "Icons For Every Object " // \u2605
                             },
                             // {
                             //     value: "auto-always",
@@ -167,15 +167,15 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                     //     component: "text",
                     //     show: function (arg) { return arg.pLaunchMode == 'hover' }
                     // },
-                    {
-                        label: "\u26a0 You have to specify a timestamp field in the auto-launch settings",
-                        component: "text",
-                        show: function (arg) { return arg.pLaunchMode == 'auto-once-p-obj' && arg.pTimestampFromDim.length == 0 }
-                    },
-                    {
-                        label: "\u2605 Premium feature only with license",
-                        component: "text"
-                    },
+                    // {
+                    //     label: "\u26a0 You have to specify a timestamp field in the auto-launch settings",
+                    //     component: "text",
+                    //     show: function (arg) { return arg.pLaunchMode == 'auto-once-p-obj' && arg.pTimestampFromDim.length == 0 }
+                    // },
+                    // {
+                    //     label: "\u2605 Premium feature only with license",
+                    //     component: "text"
+                    // },
                     /*{
                         label: "Select objects for tour",
                         component: "button",
@@ -443,10 +443,12 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
             }
         },
 
-        licensing: function (app) {
+        licensing: function (app, guided_tour_global) {
             const enigma = app.model.enigmaModel;
             return {
-                label: '🔑 License',
+                label: function (arg, context) {
+                    return guided_tour_global.licensedObjs[context.properties.qInfo.qId] ? 'License (OK)' : 'License (unlicensed)'
+                },
                 type: 'items',
                 items: [
                     {
@@ -491,7 +493,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
 
         about: function (guided_tour_global) {
             return {
-                label: 'ℹ️ About this extension',
+                label: 'About this extension',
                 type: 'items',
                 items: [
                     {
@@ -554,21 +556,21 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
         return ret;
     }
 
-    function getDimNames(props, indexOrLabel) {
-        // returns the labels/field names of the Dimension in this qHyperCubeDef as an array of {value: #, label: ""}
-        var opt = [{ value: "", label: "- not assigned -" }];
-        var i = -1;
-        for (const dim of props.qHyperCubeDef.qDimensions) {
-            i++;
-            var label = dim.qDef.qFieldLabels[0].length == 0 ? dim.qDef.qFieldDefs[0] : dim.qDef.qFieldLabels[0];
-            if (label.substr(0, 1) == '=') label = label.substr(1);
-            if (i >= 2) opt.push({  // skip the first 2 dimensions
-                value: indexOrLabel == 'label' ? label : i,
-                label: label
-            });
-        }
-        return opt;
-    }
+    // function getDimNames(props, indexOrLabel) {
+    //     // returns the labels/field names of the Dimension in this qHyperCubeDef as an array of {value: #, label: ""}
+    //     var opt = [{ value: "", label: "- not assigned -" }];
+    //     var i = -1;
+    //     for (const dim of props.qHyperCubeDef.qDimensions) {
+    //         i++;
+    //         var label = dim.qDef.qFieldLabels[0].length == 0 ? dim.qDef.qFieldDefs[0] : dim.qDef.qFieldLabels[0];
+    //         if (label.substr(0, 1) == '=') label = label.substr(1);
+    //         if (i >= 2) opt.push({  // skip the first 2 dimensions
+    //             value: indexOrLabel == 'label' ? label : i,
+    //             label: label
+    //         });
+    //     }
+    //     return opt;
+    // }
 
     async function resolveProperty(prop, enigma) {
         // takes care of a property being either a constant or a expression, which needs to be evaluated
@@ -625,7 +627,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                     // the "click" event has not been registered
                     // $(`${ppSection}:nth-child(${domPos + 1}) h4`).css('background', 'floralwhite');
                     // console.log('show pickers', Math.random());
-                    picker.pickersOn(ownId, enigma, null, context.properties.pTourItems);
+                    picker.pickersOn(ownId, enigma, null, context.properties, guided_tour_global, currSheet, tooltips);
                 }
             }
             // register click event on all main sections of accordeon menu
@@ -637,12 +639,12 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                     const tid = getTourItemsSectionPos();
                     if ($(e.currentTarget).parent().attr('tid') == tid) {
                         // clicked and open
-                        // console.log('show pickers', Math.random());
-                        picker.pickersOn(ownId, enigma, null, context.properties.pTourItems);
+                        if (context.properties.pConsoleLog) console.log('show pickers', Math.random());
+                        picker.pickersOn(ownId, enigma, null, context.properties, guided_tour_global, currSheet, tooltips);
 
                     } else {
                         // clicked and closed
-                        // console.log('hide pickers', Math.random());
+                        if (context.properties.pConsoleLog) console.log('hide pickers', Math.random());
                         picker.pickersOff(ownId);
                     }
                 });
@@ -737,7 +739,8 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
             const cssSelector = `${ppSection}:nth-child(${domPos + 1}) ${ppNmDi}:nth-child(${itemPos + 1}) [tid="${inputRef}"] input`;
             // console.log('cssSelector', cssSelector);
             if ($(cssSelector).length > 0) {
-                picker.pickersOn(context.properties.qInfo.qId, enigma, itemPos, context.properties.pTourItems);
+                picker.pickersOn(context.properties.qInfo.qId, enigma, itemPos, context.properties
+                    , guided_tour_global, currSheet, tooltips);
 
             } else {
                 alert('Cannot find the "Tooltip Items" text in DOM model. Invalid css selector:', cssSelector);

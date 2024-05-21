@@ -22,12 +22,12 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
         objAliases: {}
     }
 
-    const lStorageDefault = '{"openedAt":"18991231000000", "objectsOpened": {}}';
-    function noLicenseMsg(mode) {
-        return `The ${mode} mode would start now, if you had a license for the guided-tour extension.
-                <br/><br/>Get in touch with <a href="mailto:insight-sales@databridge.ch">insight-sales@databridge.ch</a> '
-                or choose a license-free mode of operation.`
-    };
+    // const lStorageDefault = '{"openedAt":"18991231000000", "objectsOpened": {}}';
+    // function noLicenseMsg(mode) {
+    //     return `The ${mode} mode would start now, if you had a license for the guided-tour extension.
+    //             <br/><br/>Get in touch with <a href="mailto:insight-sales@databridge.ch">insight-sales@databridge.ch</a> '
+    //             or choose a license-free mode of operation.`
+    // };
 
 
     $("<style>").html(cssContent).appendTo("head");
@@ -104,7 +104,7 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
                 },
                 props.tourItems(qlik, guided_tour_global),
                 props.tourSettings(qlik.currApp(this), guided_tour_global),
-                props.licensing(qlik.currApp(this)),
+                props.licensing(qlik.currApp(this), guided_tour_global),
                 props.about(guided_tour_global)
             ]
         },
@@ -211,12 +211,12 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
 
             // if (showNoItemsHint) {
             //     $(`#${ownId}_parent .guided-tour-no-items-hint`).click(function () {
-            //         if (qlik.navigation.getMode() == 'edit') picker.pickersOn(ownId, enigma, null, layout.pTourItems)
+            //         if (qlik.navigation.getMode() == 'edit') picker.pickersOn(ownId, enigma, null, layout)
             //     })
             // }
             if (showNoItemsHint) {
                 if (qlik.navigation.getMode() == 'edit') {
-                    picker.pickersOn(ownId, enigma, null, layout.pTourItems);
+                    picker.pickersOn(ownId, enigma, null, layout, guided_tour_global, currSheet, tooltips);
                 }
             }
 
@@ -253,68 +253,68 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
                 //---------------------------------------------------
 
                 $(`#${ownId}_hovermode`).click(function () {
-                    if (!licensed) {
-                        $(`#${ownId}_hovermode`).prop('checked', false);
-                        tooltips.leonardoMsg(ownId, 'Guided-Tour Extension', noLicenseMsg('Mouse-over'), null, 'OK');
-                    } else {
-                        const hoverModeSwitch = $(`#${ownId}_hovermode`).is(':checked');
-                        if (hoverModeSwitch == true) {
-                            console.log(`switch tour ${ownId} to "on"`);
-                            $('.guided-tour-picker').remove();  // hide pickers, if still open
-                            $(`#${ownId}_tooltip`).remove(); // close open tooltips, if any
+                    // if (!licensed) {
+                    //     $(`#${ownId}_hovermode`).prop('checked', false);
+                    //     tooltips.leonardoMsg(ownId, 'Guided-Tour Extension', noLicenseMsg('Mouse-over'), null, 'OK');
+                    // } else {
+                    const hoverModeSwitch = $(`#${ownId}_hovermode`).is(':checked');
+                    if (hoverModeSwitch == true) {
+                        console.log(`switch tour ${ownId} to "on"`);
+                        $('.guided-tour-picker').remove();  // hide pickers, if still open
+                        $(`#${ownId}_tooltip`).remove(); // close open tooltips, if any
 
-                            guided_tour_global.tooltipsCache[ownId].forEach((tooltipDef, tooltipNo) => {
-                                //layout.pTourItems.forEach((tooltipDef, tooltipNo) => {
-                                const divId = tooltipDef.selector.split(':').slice(-1)[0]; // use the text after : in the selector property;
+                        guided_tour_global.tooltipsCache[ownId].forEach((tooltipDef, tooltipNo) => {
+                            //layout.pTourItems.forEach((tooltipDef, tooltipNo) => {
+                            const divId = tooltipDef.selector.split(':').slice(-1)[0]; // use the text after : in the selector property;
 
-                                var newDiv = $(`<div style="${layout.pHoverIconCustomCSS}" 
+                            var newDiv = $(`<div style="${layout.pHoverIconCustomCSS}" 
                                     class="guided-tour-helpicon  guided-tour-helpicon-${ownId}">
                                     ${layout.pHoverIconText}</div>`);
-                                newDiv
-                                    .on('click', () => {
-                                        // if ($('#' + ownId + '_tooltip').length == 0) {
-                                        tooltips.play3(ownId, layout, tooltipNo, false, enigma, guided_tour_global, currSheet, false);
-                                        // }
-                                    })
-                                    .on('mouseover', () => {
-                                        // if ($('#' + ownId + '_tooltip').length == 0) {
-                                        tooltips.play3(ownId, layout, tooltipNo, false, enigma, guided_tour_global, currSheet, false);
-                                        // }
-                                    })
-                                    .on('mouseout', () => {
-                                        // console.log(tooltipNo, 'Closing');
-                                        tooltips.endTour(ownId, guided_tour_global, currSheet, layout, -1);
-                                        // $('#' + ownId + '_tooltip').remove();
-                                        // guided_tour_global.activeTooltip[currSheet][ownId] = -1; // set activeTooltip to armed
-                                        // // stop rotating the play icon
-                                        // tooltips.playIcon(ownId);
-                                    });
-                                $('[tid="' + divId + '"] .guided-tour-helpicon').remove(); // if previous help icon is there, remove it
-                                $('[tid="' + divId + '"]').prepend(newDiv);
+                            newDiv
+                                .on('click', () => {
+                                    // if ($('#' + ownId + '_tooltip').length == 0) {
+                                    tooltips.play3(ownId, layout, tooltipNo, false, enigma, guided_tour_global, currSheet, false);
+                                    // }
+                                })
+                                .on('mouseover', () => {
+                                    // if ($('#' + ownId + '_tooltip').length == 0) {
+                                    tooltips.play3(ownId, layout, tooltipNo, false, enigma, guided_tour_global, currSheet, false);
+                                    // }
+                                })
+                                .on('mouseout', () => {
+                                    // console.log(tooltipNo, 'Closing');
+                                    tooltips.endTour(ownId, guided_tour_global, currSheet, layout, -1);
+                                    // $('#' + ownId + '_tooltip').remove();
+                                    // guided_tour_global.activeTooltip[currSheet][ownId] = -1; // set activeTooltip to armed
+                                    // // stop rotating the play icon
+                                    // tooltips.playIcon(ownId);
+                                });
+                            $('[tid="' + divId + '"] .guided-tour-helpicon').remove(); // if previous help icon is there, remove it
+                            $('[tid="' + divId + '"]').prepend(newDiv);
 
-                                // $('[tid="' + divId + '"]')
-                                //     .on('mouseover', () => {
-                                //         if ($('#' + ownId + '_tooltip').length == 0) {  // tooltip is not yet open
-                                //             tooltips.play3(ownId, layout, tooltipNo, false, enigma, guided_tour_global, currSheet, false);
-                                //         }
-                                //     })
-                                //     .on('mouseout', () => {
-                                //         // console.log(tooltipNo, 'Closing');
-                                //         $('#' + ownId + '_tooltip').remove();
-                                //     });
-                            });
-                            guided_tour_global.activeTooltip[currSheet][ownId] = -1; // set tour to "armed" 
-                            //    })
-                            //    .catch(function () { });
+                            // $('[tid="' + divId + '"]')
+                            //     .on('mouseover', () => {
+                            //         if ($('#' + ownId + '_tooltip').length == 0) {  // tooltip is not yet open
+                            //             tooltips.play3(ownId, layout, tooltipNo, false, enigma, guided_tour_global, currSheet, false);
+                            //         }
+                            //     })
+                            //     .on('mouseout', () => {
+                            //         // console.log(tooltipNo, 'Closing');
+                            //         $('#' + ownId + '_tooltip').remove();
+                            //     });
+                        });
+                        guided_tour_global.activeTooltip[currSheet][ownId] = -1; // set tour to "armed" 
+                        //    })
+                        //    .catch(function () { });
 
-                        } else {
-                            // switch to "off", unbind the events;
-                            console.log(`switch tour ${ownId} to "off"`);
-                            $('.guided-tour-helpicon').remove();
-                            $(`#${ownId}_tooltip`).remove();
-                            guided_tour_global.activeTooltip[currSheet][ownId] = -2;
-                        }
+                    } else {
+                        // switch to "off", unbind the events;
+                        console.log(`switch tour ${ownId} to "off"`);
+                        $('.guided-tour-helpicon').remove();
+                        $(`#${ownId}_tooltip`).remove();
+                        guided_tour_global.activeTooltip[currSheet][ownId] = -2;
                     }
+                    // }
                 })
 
                 //---------------------------------------------------

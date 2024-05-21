@@ -163,7 +163,7 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
         if (tooltip.bottom) tooltip.bottom += 'px';
         tooltip.orient = orientation;
 
-        console.log('orientation', orientation, tooltip);
+        if (layout.pConsoleLog) console.log('orientation', orientation, tooltip);
 
         return tooltip;
     }
@@ -360,7 +360,7 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
 
 
                     // add the tooltip div
-
+                    $('.guided-tour-tooltip-parent').remove();
                     $(rootContainer).append(`
                     <div class="lui-tooltip  guided-tour-toolip-parent" id="${ownId}_tooltip" 
                         style="${tooltipStyle};display:none;position:absolute;">
@@ -369,14 +369,14 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
                             ${tooltipNo + 1}/${guided_tour_global.tooltipsCache[ownId].length}
                         </span>
                         <span class="lui-icon  lui-icon--close" 
-                            style="float:right;cursor:pointer;${layout.pLaunchMode == 'hover' && !isPreviewMode ? 'display:none;' : ''}" id="${ownId}_quit">
+                            style="float:right;cursor:pointer;${/*layout.pLaunchMode == 'hover' && !isPreviewMode ? 'display:none;' :*/ ''}" id="${ownId}_quit">
                         </span>
                         ${knownObjId == 0 ? '<br/><div class="guided-tour-err">Object <strong>' + qObjId + '</strong> not found!</div>' : '<br/>'}
                         ${knownObjId > 1 ? '<br/><div class="guided-tour-err"><strong>' + qObjId + '</strong> selects ' + knownObjId + ' objects!</div>' : '<br/>'}
                         <div style="margin-top:10px;" id="${ownId}_text">
                         	${vizId ? '<!--placeholder for chart-->' : html}
                         </div>
-                        <${licensed ? '!--' : ''}div class="guided-tour-ad">
+                        <${licensed ? '!--' : ''}div class="guided-tour-ad" style="display:unset;opacity:0.3;">
                             &#x73;p&#x6f;n&#x73;o&#x72;e&#x64;&nbsp;&#x62;y&nbsp;
                             <a href="https://www.databridge.ch" target="_blank">
                                 &#x64;a&#x74;a&#x2f;&#x5c;b&#x72;i&#x64;g&#x65;
@@ -413,7 +413,8 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
                     // register click trigger for "X" (quit) and Next/Done button
                     $(`#${ownId}_quit`).click(() => {
                         if (layout.pLaunchMode == 'hover') {
-                            $(`#${ownId}_tooltip`).remove()
+                            // $(`#${ownId}_tooltip`).remove()
+                            endTour(ownId, guided_tour_global, currSheet, layout, -1)
                         }
                         else {
                             play3(ownId, layout, tooltipNo, true, enigma, guided_tour_global, currSheet, isPreviewMode, lStorageKey, lStorageVal)
@@ -429,8 +430,11 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
                         .css('left', calcPositions.left).css('right', calcPositions.right)  // left or right
                         .css('top', calcPositions.top).css('bottom', calcPositions.bottom)  // top or bottom
                         .attr('orient', calcPositions.orient);
-                    if (calcPositions.arrow) $(`#${ownId}_tooltip .lui-tooltip__arrow`).after(calcPositions.arrow);  // arrowhead
-
+                    $(`#${ownId}_tooltip .guided-tour-arrowhead`).remove(); // remove previous arrowhead
+                    if (calcPositions.arrow) {
+                        $(`#${ownId}_tooltip .lui-tooltip__arrow`).after(calcPositions.arrow);  // add new arrowhead
+                    }
+                    // make the new tooltip visible
                     $(`#${ownId}_tooltip`).show();
                 }
 
@@ -472,6 +476,9 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
         $(`#${ownId}_tooltip`).remove();
         if (guided_tour_global.activeTooltip[currSheet]) {
             guided_tour_global.activeTooltip[currSheet][ownId] = resetTo || -2;
+        }
+        if (!resetTo || resetTo == -2) {
+            $(`#${ownId}_hovermode`).prop('checked', false); // turn off the switch when pickers are shown
         }
         if ((layout.pOpacity || 1) < 1) $('.cell').fadeTo('fast', 1, () => { });
         playIcon(ownId);
