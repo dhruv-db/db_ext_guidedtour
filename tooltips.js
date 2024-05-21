@@ -11,7 +11,7 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
         var elemTop = $(elem).offset().top;
         var elemBottom = elemTop + $(elem).height();
 
-        return ((elemBottom <= docViewBottom) && (elemTop >= docViewTop));
+        return elemTop >= docViewTop && elemBottom <= docViewBottom
     }
 
 
@@ -438,12 +438,25 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
                     if (!isScrolledIntoView(selector)) {
                         document.querySelector(selector).scrollIntoView({ behavior: "smooth" }); // scroll to the element
                         var interval;
+                        // guided_tour_global.tmpTop = [$(selector).offset().top];
+                        var tmpTop = [$(selector).offset().top];
                         interval = setInterval(function () {
-                            if (isScrolledIntoView(selector)) {
+                            tmpTop.push($(selector).offset().top);
+                            tmpTop = tmpTop.splice(-3); // keep the last 3 top offsets
+                            // console.log(JSON.stringify(tmpTop));
+                            if (tmpTop.length == 3 && tmpTop[0] == tmpTop[1] && tmpTop[1] == tmpTop[2]) {
+                                // console.log('No more scrolling');
                                 clearInterval(interval);
+
+                                // if (isScrolledIntoView(selector)) {
+                                //     clearInterval(interval);
+                                //     console.log('selector is in the view', selector)
                                 renderTooltip();
+                            } else {
+                                // console.log('still waiting for', selector)
                             }
-                        }, 200);
+                        } // recalc every 50 milliseconds
+                            , 50);
                     } else {
                         renderTooltip();
                     }
