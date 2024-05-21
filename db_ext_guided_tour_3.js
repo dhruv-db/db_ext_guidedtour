@@ -274,10 +274,11 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
                                     })
                                     .on('mouseout', () => {
                                         // console.log(tooltipNo, 'Closing');
-                                        $('#' + ownId + '_tooltip').remove();
-                                        guided_tour_global.activeTooltip[currSheet][ownId] = -1; // set activeTooltip to armed
-                                        // stop rotating the play icon
-                                        tooltips.playIcon(ownId);
+                                        tooltips.endTour(ownId, guided_tour_global, currSheet, layout, -1);
+                                        // $('#' + ownId + '_tooltip').remove();
+                                        // guided_tour_global.activeTooltip[currSheet][ownId] = -1; // set activeTooltip to armed
+                                        // // stop rotating the play icon
+                                        // tooltips.playIcon(ownId);
                                     });
                                 $('[tid="' + divId + '"] .guided-tour-helpicon').remove(); // if previous help icon is there, remove it
                                 $('[tid="' + divId + '"]').prepend(newDiv);
