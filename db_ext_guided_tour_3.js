@@ -202,18 +202,24 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
                         title="This is a tour without any objects, please click to add some">
                         💬 please <u>select some tooltips</u> first.
                     </div>   
-                    <div class="guided-tour-label  guided-tour-launch-${ownId}" style="${showNoItemsHint ? 'display:none;' : ''}">
+                    <div class="guided-tour-label  guided-tour-launch-${ownId}" style="${showNoItemsHint ? 'display:none;' : `cursor: 'pointer'`}">
                         ${layout.pTextStart}
                     </div>
                 </div>    
                 </div>
             `);
 
+            // if (showNoItemsHint) {
+            //     $(`#${ownId}_parent .guided-tour-no-items-hint`).click(function () {
+            //         if (qlik.navigation.getMode() == 'edit') picker.pickersOn(ownId, enigma, null, layout.pTourItems)
+            //     })
+            // }
             if (showNoItemsHint) {
-                $(`#${ownId}_parent .guided-tour-no-items-hint`).click(function () {
-                    if (qlik.navigation.getMode() == 'edit') picker.pickersOn(ownId, enigma, null, layout.pTourItems)
-                })
+                if (qlik.navigation.getMode() == 'edit') {
+                    picker.pickersOn(ownId, enigma, null, layout.pTourItems);
+                }
             }
+
 
             $(`[tid="${ownId}"] ${qlikCss.v(0).innerObject}`).css('background-color', layout.pExtensionBgColor); // set bg-color in Sense Client
 
