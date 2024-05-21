@@ -51,6 +51,7 @@
 
 .guided-tour-label {
   padding-left: 4px;
+  cursor: pointer;
 }
 
 .guided-tour-parent .lui-switch {
