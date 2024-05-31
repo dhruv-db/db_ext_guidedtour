@@ -177,7 +177,7 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
 
             $element.html(`
                 <div id="${ownId}_parent" class="guided-tour-parent" 
-                    style="color:${layout.pExtensionFontColor}; background-color:${layout.pExtensionBgColor}">
+                    style="${layout.pObjectStyle}">
                     <!-- Leonardo Switch -->
                     <div class="lui-switch" 
                         style="${!showSwitch ? 'display:none;' : ''}">
@@ -191,7 +191,7 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
                       </label>
                     </div>
                     
-                    <div style="text-align:center;${!showPlayOrRotate ? 'display:none;' : ''}${layout.pMoreStyles}">
+                    <div style="text-align:center;${!showPlayOrRotate ? 'display:none;' : ''}">
                         <!-- Rotating icon -->
                         <span id="${ownId}_rotate" class="guided-tour-rotate  lui-icon  lui-icon--large  lui-icon--reload"
                           style="display:none;"></span> 
@@ -225,7 +225,8 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
 
             guided_tour_global.licensedObjs[ownId] = license.chkLicenseJson(layout.pLicenseJSON, 'db_ext_guided_tour');
             const licensed = guided_tour_global.licensedObjs[ownId];
-            guided_tour_global.tooltipsCache[ownId] = layout.pTourItems;
+            guided_tour_global.tooltipsCache[ownId] = tooltips.getActiveTooltips(layout.pTourItems);
+
 
             //    ---------------------------------------------------
             if (layout.pLaunchMode == 'click') {
@@ -239,7 +240,7 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
 
                         // tooltips.cacheHypercube(ownId, enigma, objFieldName, layout.pTourField, layout.pTourSelectVal)
                         //     .then(function (hcube) {
-                        guided_tour_global.tooltipsCache[ownId] = layout.pTourItems;
+                        guided_tour_global.tooltipsCache[ownId] = tooltips.getActiveTooltips(layout.pTourItems);
                         tooltips.play3(ownId, layout, 0, false, enigma, guided_tour_global, currSheet);
                         // })
                         // .catch(function () { });
@@ -267,7 +268,7 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
                             //layout.pTourItems.forEach((tooltipDef, tooltipNo) => {
                             const divId = tooltipDef.selector.split(':').slice(-1)[0]; // use the text after : in the selector property;
 
-                            var newDiv = $(`<div style="${layout.pHoverIconCustomCSS}" 
+                            var newDiv = $(`<div style="${layout.pHoverIconStyles}" 
                                     class="guided-tour-helpicon  guided-tour-helpicon-${ownId}">
                                     ${layout.pHoverIconText}</div>`);
                             newDiv

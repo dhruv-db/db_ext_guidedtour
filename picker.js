@@ -136,7 +136,6 @@ define(["jquery"], function ($) {
                                 prop.pTourItems.push({
                                     selector: `${objType}:${objTid}`,
                                     html: `This ${objType} is ...`,
-                                    pCustomStyles: '',
                                     orientation: ''
                                 })
                             }
