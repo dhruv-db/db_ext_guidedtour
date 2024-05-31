@@ -60,7 +60,7 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
             target.right = screen.width - (target.left + target.width);  // pixels space between right edge of target and right edge of screen
             target.bottom = screen.height - (target.top + target.height); // pixels space between bottom edge of target and bottom of screen
 
-
+            var tooltipBorderColor = $(tooltipSel).css('border-color') || layout.pTooltipBorderColor;
             var pointTo;
 
             if (!prefOrient || ['h', 'l', 'r'].indexOf(prefOrient) > -1) {  // horizontal positioning (left or right) preferred
@@ -94,7 +94,7 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
                 tooltip.right = target.right + target.width + arrowHeadSize;
                 tooltip.top = Math.min(Math.max(pointTo.top - tooltip.height / 2, 0), screen.height - tooltip.height - 10); // fix if bottom edge of tooltip would be below screen
                 tooltip.arrow = `<div><div class="guided-tour-arrowhead" orientation="${orientation}"
-                        style="border-color: rgba(0,0,0,0) rgba(0,0,0,0) rgba(0,0,0,0) ${layout.pTooltipBorderColor}; border-style:solid; 
+                        style="border-color: rgba(0,0,0,0) rgba(0,0,0,0) rgba(0,0,0,0) ${tooltipBorderColor}; border-style:solid; 
                         border-width:${arrowHeadSize}px; position:absolute; right:${(-2 * arrowHeadSize + 1) - layout.pTooltipBorder}px; 
                         top:${pointTo.top - tooltip.top - arrowHeadSize}px">
                     </div>
@@ -111,7 +111,7 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
                 tooltip.left = Math.min(target.left + target.width + arrowHeadSize, screen.width - tooltip.width - 15);
                 tooltip.top = Math.min(Math.max(pointTo.top - tooltip.height / 2, 0), screen.height - tooltip.height - 10);
                 tooltip.arrow = `<div><div class="guided-tour-arrowhead" orientation="${orientation}"
-                        style="border-color: rgba(0,0,0,0) ${layout.pTooltipBorderColor} rgba(0,0,0,0) rgba(0,0,0,0); border-style:solid; 
+                        style="border-color: rgba(0,0,0,0) ${tooltipBorderColor} rgba(0,0,0,0) rgba(0,0,0,0); border-style:solid; 
                         border-width:${arrowHeadSize}px; position:absolute; left:${(-2 * arrowHeadSize + 1) - layout.pTooltipBorder}px; 
                         top:${pointTo.top - tooltip.top - arrowHeadSize}px">
                     </div>
@@ -128,7 +128,7 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
                 tooltip.top = Math.max(target.top - tooltip.height - arrowHeadSize, 0);
                 tooltip.left = Math.min(Math.max(pointTo.left - tooltip.width / 2, 0), screen.width - tooltip.width - 15);
                 tooltip.arrow = `<div><div class="guided-tour-arrowhead" orientation="${orientation}"
-                        style="border-color: ${layout.pTooltipBorderColor} rgba(0,0,0,0) rgba(0,0,0,0) rgba(0,0,0,0); border-style:solid; 
+                        style="border-color: ${tooltipBorderColor} rgba(0,0,0,0) rgba(0,0,0,0) rgba(0,0,0,0); border-style:solid; 
                         border-width:${arrowHeadSize}px; position:absolute; left:${pointTo.left - tooltip.left - arrowHeadSize}px; 
                         bottom:${(-2 * arrowHeadSize + 1) - layout.pTooltipBorder}px;">
                     </div>
@@ -145,7 +145,7 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
                 tooltip.left = Math.min(Math.max(pointTo.left - tooltip.width / 2, 0), screen.width - tooltip.width - 15);
                 tooltip.bottom = Math.max(target.bottom - tooltip.height - arrowHeadSize, 0);
                 tooltip.arrow = `<div><div class="guided-tour-arrowhead" orientation="${orientation}"
-                        style="border-color: rgba(0,0,0,0) rgba(0,0,0,0) ${layout.pTooltipBorderColor} rgba(0,0,0,0); border-style:solid; 
+                        style="border-color: rgba(0,0,0,0) rgba(0,0,0,0) ${tooltipBorderColor} rgba(0,0,0,0); border-style:solid; 
                         border-width:${arrowHeadSize}px; position:absolute; left:${pointTo.left - tooltip.left - arrowHeadSize}px; 
                         top:${(-2 * arrowHeadSize + 1) - layout.pTooltipBorder}px;">
                     </div>
@@ -166,24 +166,6 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
         if (layout.pConsoleLog) console.log('orientation', orientation, tooltip);
 
         return tooltip;
-    }
-
-    function makeCssObject(styleAttribute) {
-        var styleDeclarations = styleAttribute ? styleAttribute.split(';') : [];
-
-        // Create an object to store the parsed CSS properties
-        var cssObject = {};
-
-        // Iterate over the array of style declarations
-        styleDeclarations.forEach(function (declaration) {
-            // Split each declaration into property and value
-            var parts = declaration.split(':');
-            if (parts.length === 2) {
-                // Trim the property and value and add them to the cssObject
-                cssObject[$.trim(parts[0])] = $.trim(parts[1]);
-            }
-        });
-        return cssObject;
     }
 
     function rotateIcon(ownId) {
@@ -238,9 +220,9 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
                 //         </div>`);
                 //     }
                 // }
-                function delay(time) {
-                    return new Promise(resolve => setTimeout(resolve, time));
-                }
+                // function delay(time) {
+                //     return new Promise(resolve => setTimeout(resolve, time));
+                // }
 
                 try {
                     if (!isScrolledIntoView(finallyScrollTo)) {
@@ -248,7 +230,9 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
                     }
                 }
                 catch (err) { }
-                delay(licensed || isPreviewMode ? 1 : 1000).then(() => quitTour('slow'));
+                // delay(licensed || isPreviewMode ? 1 : 1000).then(() => 
+                quitTour('slow');
+                // );
 
             } else {
                 quitTour('fast');
@@ -284,13 +268,15 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
                 const vizId = null;
 
                 var tooltipStyle =
-                    `width:${layout.pDefaultWidth}px;
-                    color:${layout.pFontColor};
-                    background-color:${layout.pBgColor};
-                    border:${layout.pTooltipBorder}px solid ${layout.pTooltipBorderColor}`;
-                // var tooltipCustomStyle = currElem.pCustomStyles;
+                    // `width:${layout.pDefaultWidth}px;
+                    // color:${layout.pFontColor};
+                    // background-color:${layout.pBgColor};
+                    // `${layout.pTooltipStyle};border:${layout.pTooltipBorder}px solid ${layout.pTooltipBorderColor}`
+                    `${layout.pTooltipStyle};border-width:${layout.pTooltipBorder}px;border-style:solid;`
+                        .replace(';;', ';');
+                // var tooltipCustomStyle = currElem.tooltipCustomStyles;
                 // if custom css added in the props then it will overwrite common css
-                // var CurrTolltipStyle = !tooltipCustomStyle ? tooltipStyle : `width:${layout.pDefaultWidth}px;color:${layout.pFontColor};background-color:${layout.pBgColor};border:${layout.pTooltipBorder}px solid ${layout.pTooltipBorderColor}` + currElem.pCustomStyles;
+                // var CurrTolltipStyle = !tooltipCustomStyle ? tooltipStyle : `width:${layout.pDefaultWidth}px;color:${layout.pFontColor};background-color:${layout.pBgColor};border:${layout.pTooltipBorder}px solid ${layout.pTooltipBorderColor}` + currElem.tooltipCustomStyles;
 
                 // var attr = {};
                 // try {
@@ -363,7 +349,7 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
                     $('.guided-tour-tooltip-parent').remove();
                     $(rootContainer).append(`
                     <div class="lui-tooltip  guided-tour-toolip-parent" id="${ownId}_tooltip" 
-                        style="${tooltipStyle};display:none;position:absolute;">
+                        style="${tooltipStyle}display:none;position:absolute;${currElem.tooltipCustomStyles}">
                         <!--${selector}-->
                         <span style="opacity:${layout.pLaunchMode == 'hover' ? 0 : 0.6};">
                             ${tooltipNo + 1}/${guided_tour_global.tooltipsCache[ownId].length}
@@ -383,13 +369,14 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
                             </a>
                         </div${licensed ? '--' : ''}>
                         <a class="lui-button  guided-tour-next" 
-                            style="${layout.pLaunchMode == 'hover' ? 'opacity:0;' : ''}" id="${ownId}_next">
+                            style="${layout.pLaunchMode == 'hover' ? 'opacity:0;' : ''}${layout.pButtonStyles};${currElem.buttonCustomStyles}" 
+                            id="${ownId}_next">
                             ${isLast ? layout.pTextDone : layout.pTextNext}
                         </a>
                         <div class="lui-tooltip__arrow"></div>
                     </div>`);
                     // add possible more styles
-                    $(`#${ownId}_tooltip`).css(makeCssObject(currElem.pCustomStyles));
+                    // $(`#${ownId}_tooltip`).css(makeCssObject(currElem.tooltipCustomStyles, layout));
 
                     if (vizId) {
                         const app = qlik.currApp();
@@ -408,7 +395,8 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
                     // get the current colors, because the attribute-dimension can overrule the first color and background-color style setting
                     fontColor = $(`#${ownId}_tooltip`).css('color');
                     bgColor = $(`#${ownId}_tooltip`).css('background-color');
-                    $(`#${ownId}_next`).css('color', fontColor); // set the a-tag button's font color
+                    // set thes button's font color
+                    if ($(`#${ownId}_next`).css('color').length == 0) $(`#${ownId}_next`).css('color', fontColor);
 
                     // register click trigger for "X" (quit) and Next/Done button
                     $(`#${ownId}_quit`).click(() => {
@@ -548,6 +536,12 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
 
         endTour: function (ownId, guided_tour_global, currSheet, layout, resetTo) {
             return endTour(ownId, guided_tour_global, currSheet, layout, resetTo)
+        },
+
+        getActiveTooltips: function (pTourItems) {
+            return pTourItems.filter(item => {
+                return ((item.showCond == undefined || item.showCond.length == 0) ? true : (item.showCond != 0))
+            })
         }
     }
 })

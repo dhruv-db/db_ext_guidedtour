@@ -72,6 +72,13 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                                 maxlength: 4000,
                                 expression: 'optional'
                             },
+                            showCond: {
+                                ref: "showCond",
+                                label: "Show Condition",
+                                type: "string",
+                                expression: 'optional',
+                                defaultValue: { qStringExpression: { qExpr: "=1" } }
+                            },
                             more: {
                                 component: 'expandable-items',
                                 items: {
@@ -79,20 +86,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                                         label: "More Settings",
                                         type: "items",
                                         items: {
-                                            MyText: {
-                                                label: "❔ Example: background-color: rgb(250 15 15 / 90%);",
-                                                component: "text"
-                                            },
-                                            cssTooltipBase: { // For custom css tooltip style
-                                                ref: "pCustomStyles",
-                                                label: "CSS (Tooltip Base)",
-                                                type: "string",
-                                                component: "textarea",
-                                                rows: 4,
-                                                maxlength: 4000,
-                                                expression: 'optional',
-                                                //defaultValue: '/* background: #303030;*/\n/*color: white;*/'
-                                            },
+
                                             orientation: {
                                                 ref: "orientation",
                                                 label: "Tooltip position",
@@ -111,6 +105,30 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                                                         label: "above or below"
                                                     }
                                                 ]
+                                            },
+                                            // MyText: {
+                                            //     label: "❔ Example: background-color: rgb(250 15 15 / 90%);",
+                                            //     component: "text"
+                                            // },
+                                            tooltipCustomStyles: { // For custom css tooltip style
+                                                ref: "tooltipCustomStyles",
+                                                label: "Tooltip Style overrule",
+                                                type: "string",
+                                                component: "textarea",
+                                                rows: 4,
+                                                maxlength: 4000,
+                                                expression: 'optional',
+                                                defaultValue: "/*background: #333;\ncolor: white;\nborder-color:black;*/"
+                                            },
+                                            buttonCustomStyles: { // For custom css tooltip style
+                                                ref: "buttonCustomStyles",
+                                                label: "Tooltip Button Style overrule",
+                                                type: "string",
+                                                component: "textarea",
+                                                rows: 4,
+                                                maxlength: 4000,
+                                                expression: 'optional',
+                                                defaultValue: "/*background: #333;\ncolor: white;\nborder-color:white;*/"
                                             }
                                         }
                                     }
@@ -129,10 +147,6 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                 label: "⚙️ Tour Settings",
                 type: 'items',
                 items: [
-                    /*{
-                        label: "The first two dimensions are mandatory: object-id and text",
-                        component: "text"
-                    },*/
                     {
                         label: 'Mode to launch tour',
                         type: 'string',
@@ -147,64 +161,10 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                             {
                                 value: "hover",
                                 label: "Icons For Every Object " // \u2605
-                            },
-                            // {
-                            //     value: "auto-always",
-                            //     label: "Auto-launch tour (always)"
-                            // },
-                            // {
-                            //     value: "auto-once",
-                            //     label: "Auto-launch tour once \u2605"
-                            // },
-                            // {
-                            //     value: "auto-once-p-obj",
-                            //     label: "Auto-launch tooltips once \u2605"
-                            // }
+                            }
                         ]
                     },
-                    // {
-                    //     label: "Note: Mouse-over mode only supports Sense object IDs, no other CSS-selectors.",
-                    //     component: "text",
-                    //     show: function (arg) { return arg.pLaunchMode == 'hover' }
-                    // },
-                    // {
-                    //     label: "\u26a0 You have to specify a timestamp field in the auto-launch settings",
-                    //     component: "text",
-                    //     show: function (arg) { return arg.pLaunchMode == 'auto-once-p-obj' && arg.pTimestampFromDim.length == 0 }
-                    // },
-                    // {
-                    //     label: "\u2605 Premium feature only with license",
-                    //     component: "text"
-                    // },
-                    /*{
-                        label: "Select objects for tour",
-                        component: "button",
-                        action: function (arg) {
-                            console.log('arg', arg);
-                            picker.pick(arg.qInfo.qId, enigma, guided_tour_global);
-                        }
-                    }
-                    */
-                    /*, subSection('Select A Specific Tour', [
-                        {
-                            label: "If you have multiple tours in your data model, you may want to filter the right one by making below selection",
-                            component: "text"
-                        }, 
-{
-                            label: 'Select in field',
-                            type: 'string',
-                            ref: 'pTourField',
-                            expression: 'optional'
-                        }, 
-{
-                            label: 'Select this value',
-                            type: 'string',
-                            ref: 'pTourSelectVal',
-                            expression: 'optional'
-                        }
-                    ]) 
-                    */
-                    , subSection('Button Text & Color', [
+                    subSection('Launcher Appearance', [
                         {
                             label: 'Text for Tour Start',
                             type: 'string',
@@ -234,6 +194,17 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                             show: function (arg) { return arg.pLaunchMode != 'hover' }
                         },
                         {
+                            label: 'Styles for Play',
+                            type: 'string',
+                            ref: 'pObjectStyle',
+                            type: "string",
+                            component: "textarea",
+                            rows: 4,
+                            maxlength: 4000,
+                            defaultValue: 'color: #333;\nbackground: white;\nfont-size: medium;',
+                            expression: 'optional'
+                        }
+                        /*{
                             label: 'Font-color of button',
                             type: 'string',
                             ref: 'pExtensionFontColor',
@@ -253,10 +224,22 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                             ref: 'pMoreStyles',
                             defaultValue: 'font-size:large;',
                             expression: 'optional'
-                        }
+                        }*/
                     ])
 
                     , subSection('Tooltips Appearance', [
+
+                        {
+                            label: 'Tooltip Default Style',
+                            type: 'string',
+                            ref: 'pTooltipStyle',
+                            type: "string",
+                            component: "textarea",
+                            rows: 5,
+                            maxlength: 4000,
+                            defaultValue: 'color: #000000;\nbackground: #fbfbfb;\nborder-color: #333;\nwidth: 250px;',
+                            expression: 'optional'
+                        },
                         {
                             label: 'Hover Icon Text',
                             type: 'string',
@@ -266,19 +249,14 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                             show: function (arg) { return arg.pLaunchMode == 'hover' }
                         },
                         {
-                            label: "❔ Example: color: white;background-color: green",
-                            component: "text",
-                            show: function (arg) { return arg.pLaunchMode == 'hover' }
-                        },
-                        {
                             label: 'Hover Icon Custom CSS',
                             type: 'string',
-                            ref: 'pHoverIconCustomCSS',
+                            ref: 'pHoverIconStyles',
                             type: "string",
                             component: "textarea",
                             rows: 4,
                             maxlength: 4000,
-                            defaultValue: 'color: #000000;\nbackground: #d3d3d3;\ntop:-7px;',
+                            defaultValue: 'color: black;\nbackground: #d3d3d3;\ntop:-7px;',
                             expression: 'optional',
                             show: function (arg) { return arg.pLaunchMode == 'hover' }
                         },
@@ -287,16 +265,29 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                             type: 'string',
                             ref: 'pTextNext',
                             defaultValue: 'Next',
-                            expression: 'optional'
+                            expression: 'optional',
+                            show: function (arg) { return arg.pLaunchMode != 'hover' }
                         },
                         {
                             label: 'Text for Done button',
                             type: 'string',
                             ref: 'pTextDone',
                             defaultValue: 'Done',
-                            expression: 'optional'
+                            expression: 'optional',
+                            show: function (arg) { return arg.pLaunchMode != 'hover' }
                         },
                         {
+                            label: 'Tooltip Button Styles',
+                            type: 'string',
+                            ref: 'pButtonStyles',
+                            defaultValue: 'color:white;\nbackground: green;\nborder-color: green;',
+                            component: "textarea",
+                            rows: 5,
+                            maxlength: 4000,
+                            expression: 'optional',
+                            show: function (arg) { return arg.pLaunchMode != 'hover' }
+                        },
+                        /*{
                             label: 'Default tooltip font color',
                             type: 'string',
                             ref: 'pFontColor',
@@ -316,7 +307,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                             ref: 'pDefaultWidth',
                             defaultValue: 250,
                             expression: 'optional'
-                        }, /*{
+                        },*/ /*{
                         label: 'More attributes in dimension',
                         component: "dropdown",
                         ref: "pAttrFromDim",
@@ -340,14 +331,22 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                             min: 0,
                             max: 5,
                             step: 1,
-                            defaultValue: 2
+                            defaultValue: 1
                         },
+                        // {
+                        //     label: 'Default tooltip border color',
+                        //     type: 'string',
+                        //     ref: 'pTooltipBorderColor',
+                        //     defaultValue: '#888888',
+                        //     expression: 'optional'
+                        // }
+                    ])
+                    , subSection('Advanced Settings', [
                         {
-                            label: 'Default tooltip border color',
-                            type: 'string',
-                            ref: 'pTooltipBorderColor',
-                            defaultValue: '#888888',
-                            expression: 'optional'
+                            type: "boolean",
+                            defaultValue: false,
+                            ref: "pConsoleLog",
+                            label: "console.log debugging info"
                         },
                         {
                             label: function (arg) { return 'Opacity of inactive objects: ' + arg.pOpacity },
@@ -359,74 +358,6 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                             max: 1,
                             step: 0.1
                             //show: function (arg) { return arg.pLaunchMode != 'hover' }
-                        }
-                    ])
-                    /*
-                    , subSection('Auto-launch Settings (Tour)\u2605', [
-                        {
-                            label: "These settings apply only if you have a licensed version.",
-                            component: "text"
-                        }, {
-                            label: 'Relaunch once after',
-                            type: 'string',
-                            ref: 'pRelaunchAfter',
-                            defaultValue: '18991231235959',
-                            expression: 'optional'
-                        },
-                        {
-                            label: "Format: YYYYMMDDhhmmss",
-                            component: "text"
-                        },
-                        {
-                            label: function (arg) { return 'Saved settings: ' + window.localStorage.getItem(app.id + '|' + arg.qInfo.qId) },
-                            component: "text"
-                        },
-                        {
-                            label: "Clear saved settings",
-                            component: "button",
-                            action: function (arg) {
-                                window.localStorage.removeItem(app.id + '|' + arg.qInfo.qId);
-                                tooltips.leonardoMsg(arg.qInfo.qId, 'Success', 'Removed local item', null, 'OK');
-                            }
-                        }
-                    ], 'pLaunchMode', 'auto-once'  // only show settings section if pLaunchMode == 'auto-once'
-                    )
-                    , subSection('Auto-launch Settings (Obj)\u2605', [
-                        {
-                            label: "These settings apply only if you have a licensed version.",
-                            component: "text"
-                        },
-                        {
-                            label: 'Timestamp field for every object',
-                            component: "dropdown",
-                            ref: "pTimestampFromDim",
-                            defaultValue: "",
-                            options: function (arg) { return getDimNames(arg, 'label'); }
-                        },
-                        {
-                            label: "Format: YYYYMMDDhhmmss",
-                            component: "text"
-                        },
-                        {
-                            label: function (arg) { return 'Saved settings: ' + window.localStorage.getItem(app.id + '|' + arg.qInfo.qId) },
-                            component: "text"
-                        },
-                        {
-                            label: "Clear saved settings",
-                            component: "button",
-                            action: function (arg) {
-                                window.localStorage.removeItem(app.id + '|' + arg.qInfo.qId);
-                                tooltips.leonardoMsg(arg.qInfo.qId, 'Success', 'Removed local item', null, 'OK');
-                            }
-                        }
-                    ], 'pLaunchMode', 'auto-once-p-obj'  // only show settings section if pLaunchMode == 'auto-once-p-obj'
-                    )*/
-                    , subSection('Advanced Settings', [
-                        {
-                            type: "boolean",
-                            defaultValue: false,
-                            ref: "pConsoleLog",
-                            label: "console.log debugging info"
                         },
                         {
                             label: "Search SheetObjects",
@@ -474,7 +405,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                     {
                         label: "Check License",
                         component: "button",
-                        action: function (arg) {
+                        action: function (arg, context) {
 
                             const ownId = arg.qInfo.qId;
                             resolveProperty(arg.pLicenseJSON, enigma).then(function (lstr) {
@@ -485,6 +416,9 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                                 // make window wider
                                 if (report.length > 200) $('#msgparent_' + ownId + ' .lui-dialog').css('width', '700px');
                             });
+                            /*
+
+                            */
                         }
                     }
                 ]
@@ -522,8 +456,39 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                         label: "More",
                         component: "button",
                         action: function (arg) {
-                            console.log(arg);
                             window.open('https://insight.databridge.ch/items/guided-tour-extension', '_blank');
+                        }
+                    },
+                    {
+                        label: "Sheet Objects",
+                        component: "button",
+                        action: function (arg) {
+
+                            const app = qlik.currApp();
+                            const currSheet = qlik.navigation.getCurrentSheetId().sheetId;
+                            app.getObject(currSheet)
+                                .then((sheetObj) => sheetObj.getLayout())
+                                .then((sheetLayout => {
+                                    sheetObjects = [];
+                                    console.log('Cells on sheet', currSheet, sheetLayout.cells);
+                                    objectIds = [];
+                                    sheetLayout.cells.forEach(o => objectIds.push(o.name));
+                                    const objectPromises = objectIds.map(id => app.getObject(id).then(obj => obj.getProperties()));
+                                    // Use Promise.all to wait for all promises to resolve
+
+                                    Promise.all(objectPromises)
+                                        .then(results => {
+                                            results.forEach((properties, i) => {
+                                                // console.log(`Properties for object ${objectIds[i]}:`, properties);
+                                                sheetObjects.push(properties);
+                                            });
+                                            // Done here building a list of
+                                            console.log(`Scanned ${objectIds.length} sheet objects.`, sheetObjects);
+
+                                        })
+                                        .catch(err => console.error('Error retrieving object properties:', err));
+                                }))
+                                .catch((err) => console.error(err))
                         }
                     }
                 ]
@@ -665,6 +630,17 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                 }
             })
 
+            // color the section headers of the "disabled tooltips" (those with showCond false)
+            $(`${ppSection}:nth-child(${domPos + 1}) ${ppNmDi_content}`).each((i, e) => {
+                if ([1, -1, '1', '-1'].indexOf(context.layout.pTourItems[i].showCond || -1) == -1) {
+                    $(e).addClass('gt-disabled-item');
+                } else {
+                    $(e).removeClass('gt-disabled-item');
+                }
+            });
+
+            // mouseover and mouseout events to highlight the object on the sheet that is behind this touritem
+
             $(`${ppSection}:nth-child(${domPos + 1}) ${ppNmDi_content}`)
                 .not('[guided-tour-event="click"]')
                 //.css('border', 'gray 1px solid')
@@ -753,11 +729,11 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
 
     function previewButtonClick(itemPos, context, enigma, guided_tour_global, currSheet) {
 
-        // in the properties of Tooltip icons the Preview Tooltip button was clicked.
+        // in the properties fof Tooltip icons the Preview Tooltip button was clicked.
 
         var isPreviewMode = true;
         // put current properties into tooltipsCache
-        guided_tour_global.tooltipsCache[context.properties.qInfo.qId] = JSON.parse(JSON.stringify(context.properties.pTourItems));
+        guided_tour_global.tooltipsCache[context.properties.qInfo.qId] = JSON.parse(JSON.stringify(context.layout.pTourItems));
 
         tooltips.play3(
             context.properties.qInfo.qId, context.layout, itemPos, false, enigma,

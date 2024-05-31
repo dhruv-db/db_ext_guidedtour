@@ -122,3 +122,13 @@
   bottom: 10px;
   font-size: x-small;
 }
+
+.gt-disabled-item {
+  background-image: repeating-linear-gradient(
+    135deg,
+    pink 10px,
+    pink 10px,
+    transparent 12px,
+    transparent 14px
+  );
+}
