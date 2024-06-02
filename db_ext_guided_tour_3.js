@@ -4,6 +4,12 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
 
     'use strict';
 
+    const hintTxt = 'This is a tour without any tooltips yet. <ul><li>Please click on the small <strong>'
+        + '<span style="background:green;color:white;border-radius:10px;">&nbsp;+&nbsp;</span></strong>'
+        + ' icons shown in the top left corner of an object to add it to the tour.</li><li>Then'
+        + ' continue to edit them in the right property panel (accordeon) of this extension.</li></ul>';
+    const noItemsTxt = "\u26A0\uFE0F Please add some objects.";
+
     var guided_tour_global = {
         qext: {}, // extension meta-information
         hashmap: license.hashmap(location.hostname, 'db_ext_guided_tour'), // hash map for the license check
@@ -198,10 +204,11 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
                         <!-- Play icon -->
                         <span id="${ownId}_play" class="guided-tour-play  guided-tour-launch-${ownId}  lui-icon  lui-icon--large  lui-icon--play"></span> 
                     </div>
-                    <div class="guided-tour-no-items-hint" style="${!showNoItemsHint ? 'display:none;' : ''}"
-                        title="This is a tour without any objects, please click to add some">
-                        💬 please <u>select some tooltips</u> first.
-                    </div>   
+                    <div class="guided-tour-no-items-hint" style="${!showNoItemsHint ? 'display:none;' : ''}">
+                        ${noItemsTxt}
+                    </div>  
+                    <!--preload image: it's not rendered but browser loads is-->
+                    <img style="display:none;" src="../extensions/db_ext_guided_tour_3/pics/how-to-add.gif"> 
                     <div class="guided-tour-label  guided-tour-launch-${ownId}" style="${showNoItemsHint ? 'display:none;' : `cursor: 'pointer'`}">
                         ${layout.pTextStart}
                     </div>
@@ -219,7 +226,23 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
                     picker.pickersOn(ownId, enigma, null, layout, guided_tour_global, currSheet, tooltips);
                 }
             }
+            $(`.guided-tour-no-items-hint`).on('mouseover', function (o) {
+                var gtCopy = JSON.parse(JSON.stringify(guided_tour_global));
+                gtCopy.activeTooltip[currSheet][ownId] = -1;
+                gtCopy.tooltipsCache[ownId] = [{
+                    selector: `:${ownId}`,
+                    html: `<center><img src="../extensions/db_ext_guided_tour_3/pics/how-to-add.gif" width="300" height="174"></center>
+                        <br/>${hintTxt}`,
+                    tooltipCustomStyles: `width:400px; height:400px; background:white; font-size:medium;`,
+                    buttonCustomStyles: `opacity:0;`,
+                    showCond: 1
+                }];
+                tooltips.play3(ownId, layout, 0, false, enigma, gtCopy, currSheet, true);
+            });
 
+            $(`.guided-tour-no-items-hint`).on('mouseout', function (o) {
+                tooltips.endTour(ownId, guided_tour_global, currSheet, layout, -2);
+            });
 
             $(`[tid="${ownId}"] ${qlikCss.v(0).innerObject}`).css('background-color', layout.pExtensionBgColor); // set bg-color in Sense Client
 
