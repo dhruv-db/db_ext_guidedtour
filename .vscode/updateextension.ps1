@@ -54,7 +54,7 @@ if ($settings.extension_temp_name) {
     $extension_temp_name = $settings.extension_temp_name
     Write-Host -f Yellow "Press [0] " -NoNewline
     Write-Host "key to upload this as extension " -NoNewline
-    Write-Host -f Yellow $extension_temp_name
+    Write-Host -f Yellow "~$($extension_temp_name)"
 }
 else {
     $extension_temp_name = $extension_name
