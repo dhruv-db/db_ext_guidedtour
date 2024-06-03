@@ -540,7 +540,7 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
 
         getActiveTooltips: function (pTourItems) {
             return pTourItems.filter(item => {
-                return ((item.showCond == undefined || item.showCond.length == 0) ? true : (item.showCond != 0))
+                return ((item.showCond == undefined || item.showCond.length == 0) ? true : ([0, '0', 'False'].indexOf(item.showCond) == -1))
             })
         }
     }

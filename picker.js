@@ -113,10 +113,10 @@ define(["jquery"], function ($) {
                 enigma.getObject(ownId).then(obj => {
                     obj.getProperties().then(prop => {
                         //const addObj = true
-                        const alreadyInTour = prop.pTourItems
-                            .filter(i => i.selector.split(':').slice(-1)[0] != objTid).length
-                            < prop.pTourItems.length;
-                        if (alreadyInTour) {
+                        const otherItems = prop.pTourItems.filter((i) => {
+                            return i.selector ? (i.selector.split(':').slice(-1)[0] != objTid) : true
+                        });
+                        if (otherItems.length < prop.pTourItems.length) {
                             // remove item from prop.pTourItems array
                             action = 'removed';
                             prop.pTourItems = prop.pTourItems
@@ -125,20 +125,29 @@ define(["jquery"], function ($) {
                             $(`[tid="${objTid}"] .guided-tour-helpicon-${ownId}`).remove();
 
                         } else {
-                            // add item to prop.pTourItems array
+                            // add to, or update item in prop.pTourItems array
                             action = 'added';
+                            var addAtPos; // position to be determined
                             if ((position + 1) <= prop.pTourItems.length) {
                                 prop.pTourItems[itemPos].selector = `${objType}:${objTid}`
-                                if (!prop.pTourItems[itemPos].html) {
-                                    prop.pTourItems[itemPos].html = `This ${objType} is ...`
-                                }
+                                addAtPos = itemPos;
                             } else {
-                                prop.pTourItems.push({
+                                // look if there is an item with an empty 
+                                const i = prop.pTourItems.findIndex((e) => e.selector.length == 0);
+                                if (i > -1) {
+                                    addAtPos = i;
+                                } else {
+                                    // add item as a new item to pTourItems array
+                                    prop.pTourItems.push({});
+                                    addAtPos = prop.pTourItems.length - 1;
+                                }
+                                prop.pTourItems[addAtPos] = {
                                     selector: `${objType}:${objTid}`,
-                                    html: `This ${objType} is ...`,
-                                    orientation: ''
-                                })
+                                    html: prop.pTourItems[addAtPos].html || `This ${objType} is ...`,
+                                    showCond: prop.pTourItems[addAtPos].showCond || { qStringExpression: { qExpr: "=1" } }
+                                }
                             }
+
                             position = prop.pTourItems.length
                         }
                         // save the changed properties (array of tooltips is now changed)
@@ -186,35 +195,6 @@ define(["jquery"], function ($) {
                             $(`#guided-tour-picker-${i}`)
                                 .click(() => { addOrRemoveObj(objTid, ownId, enigma, i) })
                         }
-                        /*
-                                                const alreadyInTour = searchIds.indexOf(`:${objTid}"`) > -1 || searchIds.indexOf(`"${objTid}"`) > -1;
-                                                if (objTid == ownId) {
-                                                    // This object is the current tour itself
-                                                    $(`#guided-tour-picker-${i}`)
-                                                        .css(stylesSelf)
-                                                        // .html(divSelf().html)
-                                                        // .css(divSelf().css)
-                                                        
-                                                    $(`#guided-tour-picker-${i}-close`).show();
-                                                } else {
-                        
-                                                    $(`#guided-tour-picker-${i}`)
-                                                        // .html(alreadyInTour ? divRemove().html : divAdd().html)
-                                                        // .css(alreadyInTour ? divRemove().css : divAdd().css)
-                                                        .click(() => {
-                                                            addOrRemoveObj(objTid, ownId, enigma, i);
-                                                        })
-                                                    if (alreadyInTour) {
-                                                        $(`#guided-tour-picker-${i}`).css(stylesRemove);
-                                                        $(`#guided-tour-picker-${i}-add`).hide();
-                                                        $(`#guided-tour-picker-${i}-remove`).show();
-                                                    } else {
-                                                        $(`#guided-tour-picker-${i}`).css(stylesAdd);
-                                                        $(`#guided-tour-picker-${i}-add`).show();
-                                                        $(`#guided-tour-picker-${i}-remove`).hide();
-                                                    }
-                                                }
-                                                */
                         pickersRefresh(ownId, pTourItems)
                     }
                 })
