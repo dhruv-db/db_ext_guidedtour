@@ -1,7 +1,7 @@
 // props.js: Extension properties (accordeon menu) externalized
 
 define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects", "./qlik-css-selectors"], function
-    (qlik, $, tooltips, license, picker, findObjects, qlikCss) {
+    (qlik, $, tooltipsJs, licenseJs, pickerJs, findObjectsJs, qlikCss) {
 
     //const ext = 'db_ext_guided_tour_3';
     const ppSection = qlikCss.v(0).ppSection; // class for accordeons top <div>
@@ -366,7 +366,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                                 const app = qlik.currApp();
                                 const currSheet = qlik.navigation.getCurrentSheetId().sheetId;
                                 // const enigma = app.model.enigmaModel;
-                                findObjects.getSheetObjects(app, currSheet, guided_tour_global, context.properties.qInfo.qId);
+                                findObjectsJs.getSheetObjects(app, currSheet, guided_tour_global, context.properties.qInfo.qId);
                             }
                         }
                     ])
@@ -410,8 +410,8 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                             const ownId = arg.qInfo.qId;
                             resolveProperty(arg.pLicenseJSON, enigma).then(function (lstr) {
                                 const hostname = arg.pTestHostname ? (arg.pTestHostname.length > 0 ? arg.pTestHostname : location.hostname) : location.hostname;
-                                const report = license.chkLicenseJson(lstr, 'db_ext_guided_tour', hostname, true);
-                                tooltips.leonardoMsg(ownId, 'Result', report, null, 'OK');
+                                const report = licenseJs.chkLicenseJson(lstr, 'db_ext_guided_tour', hostname, true);
+                                tooltipsJs.leonardoMsg(ownId, 'Result', report, null, 'OK');
                                 $('#msgparent_' + ownId + ' th').css('text-align', 'left');
                                 // make window wider
                                 if (report.length > 200) $('#msgparent_' + ownId + ' .lui-dialog').css('width', '700px');
@@ -582,7 +582,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
         const ownId = context.properties.qInfo.qId;
         const domPos = getTourItemsSectionPos();
 
-        picker.pickersRefresh(ownId, context.properties.pTourItems);
+        pickerJs.pickersRefresh(ownId, context.properties.pTourItems);
 
         if (domPos) {
 
@@ -592,7 +592,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                     // the "click" event has not been registered
                     // $(`${ppSection}:nth-child(${domPos + 1}) h4`).css('background', 'floralwhite');
                     // console.log('show pickers', Math.random());
-                    picker.pickersOn(ownId, enigma, null, context.properties, guided_tour_global, currSheet, tooltips);
+                    pickerJs.pickersOn(ownId, enigma, null, context.properties, guided_tour_global, currSheet, tooltipsJs);
                 }
             }
             // register click event on all main sections of accordeon menu
@@ -605,12 +605,12 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                     if ($(e.currentTarget).parent().attr('tid') == tid) {
                         // clicked and open
                         if (context.properties.pConsoleLog) console.log('show pickers', Math.random());
-                        picker.pickersOn(ownId, enigma, null, context.properties, guided_tour_global, currSheet, tooltips);
+                        pickerJs.pickersOn(ownId, enigma, null, context.properties, guided_tour_global, currSheet, tooltipsJs);
 
                     } else {
                         // clicked and closed
                         if (context.properties.pConsoleLog) console.log('hide pickers', Math.random());
-                        picker.pickersOff(ownId);
+                        pickerJs.pickersOff(ownId);
                     }
                 });
 
@@ -632,11 +632,14 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
 
             // color the section headers of the "disabled tooltips" (those with showCond false)
             $(`${ppSection}:nth-child(${domPos + 1}) ${ppNmDi_content}`).each((i, e) => {
-                if ([1, -1, '1', '-1'].indexOf(context.layout.pTourItems[i].showCond || -1) == -1) {
-                    $(e).addClass('gt-disabled-item');
-                } else {
-                    $(e).removeClass('gt-disabled-item');
-                }
+                try {
+                    // console.log('showCond', context.layout.pTourItems[i].showCond);
+                    if ([0, '0', 'False'].indexOf(context.layout.pTourItems[i].showCond || -1) == -1) {
+                        $(e).removeClass('gt-disabled-item');
+                    } else {
+                        $(e).addClass('gt-disabled-item');
+                    }
+                } catch (e) { }
             });
 
             // mouseover and mouseout events to highlight the object on the sheet that is behind this touritem
@@ -674,7 +677,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                             const itemPos = context.properties.pTourItems.findIndex(obj => obj.selector == itemTitle);
                             previewButtonClick(itemPos, context, enigma, guided_tour_global, currSheet);
                         } else {
-                            tooltips.endTour(ownId, guided_tour_global, currSheet, context.properties)
+                            tooltipsJs.endTour(ownId, guided_tour_global, currSheet, context.properties)
                         }
                         // const elem = $(`[tid="${selector}"]`);
                         // if (elem.length) {
@@ -697,14 +700,14 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
 
         // in the properties of Tooltip icons the Pick Object button was clicked.
         const inputRef = 'selector';  // property name 
-        tooltips.endTour(context.properties.qInfo.qId, guided_tour_global, currSheet, context.properties, -2)
+        tooltipsJs.endTour(context.properties.qInfo.qId, guided_tour_global, currSheet, context.properties, -2)
 
         var itemPos = getItemPos(arg, context);
 
         // find out if the button was previously pressed and the user is still in "pick-mode"
         // if ($('.guided-tour-picker').length > 0) {
         //     // end the pick-mode
-        //     picker.pickersOff(context.properties.qInfo.qId);
+        //     pickerJs.pickersOff(context.properties.qInfo.qId);
 
         // } else {
 
@@ -715,8 +718,8 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
             const cssSelector = `${ppSection}:nth-child(${domPos + 1}) ${ppNmDi}:nth-child(${itemPos + 1}) [tid="${inputRef}"] input`;
             // console.log('cssSelector', cssSelector);
             if ($(cssSelector).length > 0) {
-                picker.pickersOn(context.properties.qInfo.qId, enigma, itemPos, context.properties
-                    , guided_tour_global, currSheet, tooltips);
+                pickerJs.pickersOn(context.properties.qInfo.qId, enigma, itemPos, context.properties
+                    , guided_tour_global, currSheet, tooltipsJs);
 
             } else {
                 alert('Cannot find the "Tooltip Items" text in DOM model. Invalid css selector:', cssSelector);
@@ -735,7 +738,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
         // put current properties into tooltipsCache
         guided_tour_global.tooltipsCache[context.properties.qInfo.qId] = JSON.parse(JSON.stringify(context.layout.pTourItems));
 
-        tooltips.play3(
+        tooltipsJs.play3(
             context.properties.qInfo.qId, context.layout, itemPos, false, enigma,
             guided_tour_global, currSheet, isPreviewMode
         );
