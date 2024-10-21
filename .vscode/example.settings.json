@@ -9,8 +9,7 @@
   ],
   "editor.formatOnSave": true,
   // all the remarks after two-slashes need to be removed, as .json doesn't support comments
-  "your_host_name": {
-    // put your computer name here
+  "your_host_name": { // <-- put your computer name here
     "extension_temp_name": "", // temp name of the extension while developing
     "save_to": "", // put "cloud" or "win" or "both"
     "qlik_cli_location": "", // put absolute or relative path of qlik.exe
