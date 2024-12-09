@@ -17,6 +17,7 @@
     "qlik_cli_context": "", // the context to switch to when qlik.exe is called. Use "qlik context ls" to list them
     "qrs_url": "https://servername.domain:4242/qrs", // url of the Qlik Sense Windows server and port
     "client_cert_location": "C:\\client.pfx", // "need .pfx file if connection is via port 4242",
+    "client_cert_passphrase": "Dont4get", // skip this param if either pfx has no passphrase or you like the developer to be prompted for the passphrase
     "header_key": "X-Qlik-User",
     "header_value": "UserDirectory=INTERNAL;UserID=sa_repository"
   }

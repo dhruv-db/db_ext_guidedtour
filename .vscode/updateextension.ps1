@@ -13,7 +13,9 @@
 # v1.2, Christof, 22-Apr-2024, allow multiple configs for different computers in settings.json
 # v1.3, Christof, 01-Mai-2024, prompt user for key and option to upload extension under temp name
 # v1.3.1, Dhruv, 07-May-2024, if buily type = 1 then creating obfuscated files, for 0 (developer) build no obfuscation (We are using external NPM lib for obfuscation "npm i -g javascript-obfuscator")
+# v1.3.2, Christof stop on error
 
+$ErrorActionPreference = "Stop"
 $hostname = hostname 
 Write-Host "*** running " -NoNewline
 Write-Host -f Cyan "updateextension.ps1" -NoNewLine
@@ -160,7 +162,14 @@ while ((Get-Date) -lt ($startTime.AddSeconds(8))) {
         if (@("win", "both").Contains($settings.save_to)) {
             # want to upload to Qlik Sense on Windows
             Write-Host -f Cyan "`n--> Qlik Sense on Windows: Publishing extension '$($extension_name)'"
-            $cert = Get-PfxCertificate -FilePath $settings.client_cert_location
+            if ($settings.client_cert_passphrase) {
+                Write-Host -f Cyan "passphrase found."
+                $securePassword = ConvertTo-SecureString -String $settings.client_cert_passphrase -AsPlainText -Force
+                $cert = Get-PfxCertificate -FilePath $settings.client_cert_location -Password $securePassword
+            }
+            else {
+                $cert = Get-PfxCertificate -FilePath $settings.client_cert_location
+            }
             $api_url = $settings.qrs_url
             $xrfkey = "A3VWMWM3VGRH4X3F"
             $headers = @{
