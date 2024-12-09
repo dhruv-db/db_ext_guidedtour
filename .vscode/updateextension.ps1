@@ -32,7 +32,7 @@ if (!($settings.PSObject.Properties.Name -contains $hostname)) {
 } 
 $settings = ($settings | Select-Object -ExpandProperty $hostname)
 
-if ($settings.save_to -eq "win" -or $settings.save_to -eq "both") {
+if ($settings.save_to -eq "cloud" -or $settings.save_to -eq "both") {
     $qlik_exe = $settings.qlik_cli_location 
     if (Test-Path -Path $qlik_exe -PathType Leaf) {
         Write-Host "Using Qlik CLI:" $qlik_exe
@@ -64,13 +64,14 @@ else {
 # Write-Host "Extension is $($extension_name)"
 
 # Prompt the user to press any key
-Write-Host "`nPress key within 8 seconds to continue, otherwise nothing will happen ↓"
+Write-Host "`nPress key within 8 seconds to continue, otherwise nothing will happen $([char]8595)"
 
 # Get the current time
 $startTime = Get-Date
 
 # Loop for up to 5 seconds
 while ((Get-Date) -lt ($startTime.AddSeconds(8))) {
+    # Check if a key is available
     # Check if a key is available
     if ([System.Console]::KeyAvailable) {
         # Read the key
@@ -218,7 +219,7 @@ while ((Get-Date) -lt ($startTime.AddSeconds(8))) {
 
         if (@("cloud", "both").Contains($settings.save_to)) {
             # want to upload to Qlik Cloud
-
+            
             $resp = & $qlik_exe context use "$($settings.qlik_cli_context)" 
             # if the response is an Error (length: 0), that is when the context doesn't exist, skip the rest.
             if ($resp.length -gt 0) {
@@ -235,7 +236,9 @@ while ((Get-Date) -lt ($startTime.AddSeconds(8))) {
                     Write-Host -F Green "Try context $context with a new API Key, get it on $server"
             
                     $apikey = Read-Host -Prompt "New API Key (leave emtpy to quit)"
-                    if (-not $apikey) { Exit }
+                    if (-not $apikey) { 
+                        Exit 
+                    }
                     $info = & $qlik_exe context update "$context" --api-key $apikey
                     # Write-Host -F Green (ConvertTo-Json -i $info)
                     $extension_list = & $qlik_exe extension ls
@@ -259,6 +262,7 @@ while ((Get-Date) -lt ($startTime.AddSeconds(8))) {
 
 
                 if ($extension_id -eq "") {
+                    
                     Write-Host "Uploading extension '$($extension_name)' first time ..."
                     $resp = & $qlik_exe extension create "$($extension_id)" --file "$($file)"
                 }
@@ -268,10 +272,11 @@ while ((Get-Date) -lt ($startTime.AddSeconds(8))) {
     
                 if ($resp.Length -gt 0) {
                     $resp = $resp | ConvertFrom-Json
-                    Write-Host "Extension '$($extension_name)' uploaded (id $($resp.id))"
+                    Write-Host "Extension $extension_name uploaded (id $($resp.id))"
                 }
                 else {
-                    Write-Host "An error occurred. Not getting expected response." -ForegroundColor 'red' -BackgroundColor 'black'
+                    # test
+                    Write-Host -f Red 'An error occurred. Not getting expected response.'
                 }
             }
         } 
@@ -279,9 +284,8 @@ while ((Get-Date) -lt ($startTime.AddSeconds(8))) {
         break
     }
 
+    
     # Wait for a short period before checking again
     Start-Sleep -Milliseconds 100
     Write-Host '.' -NoNewline
 }
-
-
