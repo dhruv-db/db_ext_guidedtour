@@ -44,29 +44,37 @@ jobs:
           cp wbfolder.wbl dist/
 
       - name: Create ZIP Package
-        run: zip -r "db Guided Tour 3.zip" dist/
+        run: zip -r "db Guided Tour ${{ env.VERSION }}.zip" dist/
 
       - name: Upload to Azure Blob Storage
         run: |
-          if az storage blob exists \
-            --account-name "qlikreleasestoragepub" \
+          # Check if blob exists without failing the script
+          exists=$(az storage blob exists \
+            --account-name "${{ secrets.AZURE_STORAGE_ACCOUNT }}" \
             --container-name release \
-            --name "db Guided Tour 3.zip" \
-            --sas-token "${{ secrets.AZURE_SAS_TOKEN }}"; then
+            --name "db Guided Tour ${{ env.VERSION }}.zip" \
+            --sas-token "${{ secrets.AZURE_SAS_TOKEN }}" \
+            --query 'exists' -o tsv)
+          
+          if [ "$exists" == "true" ]; then
+            echo "Deleting existing blob..."
             az storage blob delete \
-              --account-name "qlikreleasestoragepub" \
+              --account-name "${{ secrets.AZURE_STORAGE_ACCOUNT }}" \
               --container-name release \
-              --name "db Guided Tour 3.zip" \
+              --name "db Guided Tour ${{ env.VERSION }}.zip" \
               --sas-token "${{ secrets.AZURE_SAS_TOKEN }}" \
               --delete-snapshots include
           fi
 
+          echo "Uploading new version..."
           az storage blob upload \
-            --account-name "qlikreleasestoragepub" \
+            --account-name "${{ secrets.AZURE_STORAGE_ACCOUNT }}" \
             --container-name release \
-            --name "db Guided Tour 3.zip" \
-            --file "db Guided Tour 3.zip" \
+            --name "db Guided Tour ${{ env.VERSION }}.zip" \
+            --file "db Guided Tour ${{ env.VERSION }}.zip" \
             --sas-token "${{ secrets.AZURE_SAS_TOKEN }}" \
             --overwrite
-        env:
-          AZURE_STORAGE_ACCOUNT: "qlikreleasestoragepub"
+
+      - name: Output Public Download Link
+        run: |
+          echo "Download URL: https://${{ secrets.AZURE_STORAGE_ACCOUNT }}.blob.core.windows.net/release/db%20Guided%20Tour%20${{ env.VERSION }}.zip${{ secrets.AZURE_SAS_TOKEN }}"
