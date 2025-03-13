@@ -46,24 +46,19 @@ jobs:
       - name: Create ZIP Package
         run: zip -r qlik-extension-${{ env.VERSION }}.zip dist/
 
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Upload to Azure Blob Storage
         run: |
           az storage blob upload \
-            --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
+            --account-name "$AZURE_STORAGE_ACCOUNT" \
             --container-name release \
             --name qlik-extension-${{ env.VERSION }}.zip \
             --file qlik-extension-${{ env.VERSION }}.zip \
             --sas-token "${{ secrets.AZURE_SAS_TOKEN }}" \
             --overwrite
-
-      - name: Output Public Download Link
-        run: |
-          PUBLIC_URL=$(az storage blob generate-sas \
-            --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
-            --container-name release \
-            --name qlik-extension-${{ env.VERSION }}.zip \
-            --permissions r \
-            --expiry $(date -u -d "1 week" '+%Y-%m-%dT%H:%MZ') \
-            --output tsv \
-            --query sas)
-          echo "Public Download Link: https://${{ secrets.AZURE_STORAGE_ACCOUNT }}.blob.core.windows.net/release/qlik-extension-${{ env.VERSION }}.zip?$PUBLIC_URL"
+        env:
+          AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
