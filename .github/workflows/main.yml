@@ -9,32 +9,32 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
-      
+
       - name: Set Version
         run: echo "VERSION=3" >> $GITHUB_ENV
-      
+
       - name: Setup Directory Structure
         run: mkdir -p dist/js dist/licenseUtils
-      
+
       - name: Obfuscate Main JS File
         run: |
           npm install -g javascript-obfuscator
           javascript-obfuscator db_ext_guided_tour_3.js --output dist/db_ext_guided_tour_3.js
-      
+
       - name: Obfuscate JS Folder Files
         run: |
           for file in js/*.js; do
             filename=$(basename "$file")
             javascript-obfuscator "$file" --output "dist/js/$filename"
           done
-      
+
       - name: Obfuscate LicenseUtils Folder Files
         run: |
           for file in licenseUtils/*.js; do
             filename=$(basename "$file")
             javascript-obfuscator "$file" --output "dist/licenseUtils/$filename"
           done
-      
+
       - name: Copy Non-JS Files
         run: |
           cp db_ext_guided_tour_3.qext dist/
@@ -42,10 +42,10 @@ jobs:
           cp -r pics dist/
           cp README.md dist/
           cp wbfolder.wbl dist/
-      
+
       - name: Create ZIP Package
         run: zip -r qlik-extension-${{ env.VERSION }}.zip dist/
-      
+
       - name: Upload to Azure Blob Storage
         run: |
           az storage blob upload \
@@ -55,5 +55,15 @@ jobs:
             --file qlik-extension-${{ env.VERSION }}.zip \
             --sas-token "${{ secrets.AZURE_SAS_TOKEN }}" \
             --overwrite
-      
+
       - name: Output Public Download Link
+        run: |
+          PUBLIC_URL=$(az storage blob generate-sas \
+            --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
+            --container-name release \
+            --name qlik-extension-${{ env.VERSION }}.zip \
+            --permissions r \
+            --expiry $(date -u -d "1 week" '+%Y-%m-%dT%H:%MZ') \
+            --output tsv \
+            --query sas)
+          echo "Public Download Link: https://${{ secrets.AZURE_STORAGE_ACCOUNT }}.blob.core.windows.net/release/qlik-extension-${{ env.VERSION }}.zip?$PUBLIC_URL"
