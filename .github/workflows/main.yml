@@ -48,12 +48,25 @@ jobs:
 
       - name: Upload to Azure Blob Storage
         run: |
+          az storage blob delete \
+            --account-name "$AZURE_STORAGE_ACCOUNT" \
+            --container-name release \
+            --name "qlik-extension-${{ env.VERSION }}.zip" \
+            --sas-token "${{ secrets.AZURE_SAS_TOKEN }}" \
+            --delete-snapshots include \
+            --only-if-exists
+
           az storage blob upload \
             --account-name "$AZURE_STORAGE_ACCOUNT" \
             --container-name release \
-            --name qlik-extension-${{ env.VERSION }}.zip \
-            --file qlik-extension-${{ env.VERSION }}.zip \
+            --name "qlik-extension-${{ env.VERSION }}.zip" \
+            --file "qlik-extension-${{ env.VERSION }}.zip" \
             --sas-token "${{ secrets.AZURE_SAS_TOKEN }}" \
             --overwrite
         env:
           AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
+
+      - name: Output Public Download Link
+        run: |
+          SAS_URL="https://${{ secrets.AZURE_STORAGE_ACCOUNT }}.blob.core.windows.net/release/qlik-extension-${{ env.VERSION }}.zip?${{ secrets.AZURE_SAS_TOKEN }}"
+          echo "Public Download Link: $SAS_URL"
