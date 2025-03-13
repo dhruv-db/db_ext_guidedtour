@@ -44,23 +44,22 @@ jobs:
           cp wbfolder.wbl dist/
 
       - name: Create ZIP Package
-        run: zip -r qlik-extension-${{ env.VERSION }}.zip dist/
+        run: zip -r "db Guided Tour 3.zip" dist/
 
       - name: Upload to Azure Blob Storage
         run: |
           az storage blob delete \
             --account-name "$AZURE_STORAGE_ACCOUNT" \
             --container-name release \
-            --name "qlik-extension-${{ env.VERSION }}.zip" \
+            --name "db Guided Tour 3.zip" \
             --sas-token "${{ secrets.AZURE_SAS_TOKEN }}" \
-            --delete-snapshots include \
-            --only-if-exists
+            --delete-snapshots include
 
           az storage blob upload \
             --account-name "$AZURE_STORAGE_ACCOUNT" \
             --container-name release \
-            --name "qlik-extension-${{ env.VERSION }}.zip" \
-            --file "qlik-extension-${{ env.VERSION }}.zip" \
+            --name "db Guided Tour 3.zip" \
+            --file "db Guided Tour 3.zip" \
             --sas-token "${{ secrets.AZURE_SAS_TOKEN }}" \
             --overwrite
         env:
@@ -68,5 +67,5 @@ jobs:
 
       - name: Output Public Download Link
         run: |
-          SAS_URL="https://${{ secrets.AZURE_STORAGE_ACCOUNT }}.blob.core.windows.net/release/qlik-extension-${{ env.VERSION }}.zip?${{ secrets.AZURE_SAS_TOKEN }}"
+          SAS_URL="https://${{ secrets.AZURE_STORAGE_ACCOUNT }}.blob.core.windows.net/release/db Guided Tour 3.zip?${{ secrets.AZURE_SAS_TOKEN }}"
           echo "Public Download Link: $SAS_URL"
