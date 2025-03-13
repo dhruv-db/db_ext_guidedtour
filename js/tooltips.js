@@ -1,8 +1,8 @@
 // tooltips.js: function play externalized 
 // Test Dhruv
 // Christof's comment
-define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], function
-    (qlik, $, license, qlikCss, picker) {
+define(["qlik", "jquery", "./qlik-css-selectors", "./picker"], function
+    (qlik, $, qlikCss, picker) {
 
     function isScrolledIntoView(elem) {
         var docViewTop = $(window).scrollTop();
@@ -509,7 +509,7 @@ define(["qlik", "jquery", "./license", "./qlik-css-selectors", "./picker"], func
         // fix for Qlik Sense > July 2021, the dialog gets rendered below the visible part of the screen
         if ($('#msgparent_' + ownId + ' .lui-dialog').position().top > 81) {
             $('#msgparent_' + ownId + ' .lui-dialog').css({
-                'top': (-$('#msgparent_' + ownId + ' .lui-dialog').position().top + 100) + 'px'
+                'top': (-$('#msgparent_' + ownId + ' .lui-dialog').position().top + 130) + 'px'
             });
         }
     } // end function leonardoMsg

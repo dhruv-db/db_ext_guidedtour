@@ -1,0 +1,21 @@
+{
+    "name":  "~db_ext_guided_tour_3~",
+    "type":  "visualization",
+    "description":  "Extension to show tooltips tours over Qlik Sense objects",
+    "author":  "Christof Schwarz",
+    "homepage":  "www.databridge.ch",
+    "version":  "3.0.9",
+    "bundle":  {
+                   "id":  "databridgebundle",
+                   "name":  "data/\\bridge",
+                   "description":  "Extension bundle of databridge"
+               },
+    "icon":  "play",
+    "preview":  "pics/databridgelogo.png",
+    "dependencies":  {
+                         "qlik-sense":  "\u003e=3.0.x"
+                     },
+    "keywords":  "qlik-sense, visualization",
+    "license":  "MIT",
+    "repository":  "https://github.com/dhruv-db/db_ext_guidedtour"
+}

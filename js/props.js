@@ -1,9 +1,11 @@
 // props.js: Extension properties (accordeon menu) externalized
 
-define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects", "./qlik-css-selectors"], function
-    (qlik, $, tooltipsJs, licenseJs, pickerJs, findObjectsJs, qlikCss) {
+define(["qlik", "jquery", "./tooltips", "./picker", "./findObjects",
+    "./qlik-css-selectors", "../licenseUtils/check_license"], function
+    (qlik, $, tooltipsJs, pickerJs, findObjectsJs,
+        qlikCss, checkLicenseModule) {
 
-    //const ext = 'db_ext_guided_tour_3';
+    //const ext = 'db_ext_licenses';
     const ppSection = qlikCss.v(0).ppSection; // class for accordeons top <div>
     const ppNmDi = qlikCss.v(0).ppNmDi; // class for sub-accordeons <li>
     const ppNmDi_header = qlikCss.v(0).ppNmDi_header;
@@ -378,48 +380,70 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
             const enigma = app.model.enigmaModel;
             return {
                 label: function (arg, context) {
-                    return guided_tour_global.licensedObjs[context.properties.qInfo.qId] ? 'License (OK)' : 'License (unlicensed)'
+                    // const licensed = guided_tour_global.licensedObjs[arg.qInfo.qId] ?
+                    //     guided_tour_global.checkLicenseModule.vl(guided_tour_global.licenses, 'db_ext_guided_tour', location.hostname, context.app.id).summary
+                    //     : false;
+                    return guided_tour_global.licensedObjs[arg.qInfo.qId] ? 'License (\u{1F7E2}OK)' : 'License (\u{1F534}unlicensed)'
                 },
                 type: 'items',
                 items: [
                     {
-                        type: "string",
-                        ref: "pLicenseJSON",
-                        label: "License String",
-                        component: "textarea",
-                        rows: 5,
-                        maxlength: 4000,
-                        expression: 'optional',
-                        defaultValue: { qStringExpression: { qExpr: "=vGuidedTourLicense" } }
+                        label: function (arg) {
+                            return Object.keys(guided_tour_global.licensesGlobal).length ?
+                                'databridge license found.'
+                                : 'No databridge license found. ';
+                        },
+                        component: "text"
                     },
                     {
-                        label: "Contact data/\\bridge",
-                        component: "link",
-                        url: 'https://www.databridge.ch/contact-us'
+                        label: function (arg, context) {
+                            return JSON.stringify(guided_tour_global.licensesGlobal.db_ext_guided_tour, null, 2);
+                        },
+                        component: "text"
                     },
                     {
-                        label: 'Test response for this hostname',
-                        type: 'string',
-                        ref: 'pTestHostname'
-                    },
-                    {
-                        label: "Check License",
+                        label: "Check databridge License",
                         component: "button",
+                        // show: function () { return checkLicenseModule ? true : false },
                         action: function (arg, context) {
 
                             const ownId = arg.qInfo.qId;
-                            resolveProperty(arg.pLicenseJSON, enigma).then(function (lstr) {
-                                const hostname = arg.pTestHostname ? (arg.pTestHostname.length > 0 ? arg.pTestHostname : location.hostname) : location.hostname;
-                                const report = licenseJs.chkLicenseJson(lstr, 'db_ext_guided_tour', hostname, true);
-                                tooltipsJs.leonardoMsg(ownId, 'Result', report, null, 'OK');
-                                $('#msgparent_' + ownId + ' th').css('text-align', 'left');
-                                // make window wider
-                                if (report.length > 200) $('#msgparent_' + ownId + ' .lui-dialog').css('width', '700px');
-                            });
-                            /*
+                            const result = checkLicenseModule.vlt(guided_tour_global.licensesGlobal, location.hostname, context.app.id);
+                            checkLicenseModule.luiMsg(ownId, 'Guided Tour Extension Licenses', result, 'Close', '80%', false);
+                        },
+                        show: function () { return Object.keys(guided_tour_global.licensesGlobal).length > 0 }
+                    },
+                    {
+                        label: function (arg) {
+                            return Object.keys(guided_tour_global.licensesGitoqlok).length ?
+                                'Gitoqlok partner license found.'
+                                : 'No Gitoqlok partner license found. ';
+                        },
+                        component: "text"
+                    },
+                    {
+                        label: function (arg, context) {
+                            return JSON.stringify(guided_tour_global.licensesGitoqlok.db_ext_guided_tour, null, 2);
+                        },
+                        component: "text"
+                    },
+                    {
+                        label: "Check Gitoqlok partner license",
+                        component: "button",
+                        // show: function () { return checkLicenseModule ? true : false },
+                        action: function (arg, context) {
 
-                            */
-                        }
+                            const ownId = arg.qInfo.qId;
+                            const result = checkLicenseModule.vlt(guided_tour_global.licensesGitoqlok, location.hostname, context.app.id);
+                            checkLicenseModule.luiMsg(ownId, 'Guided Tour Extension Licenses', result, 'Close', '80%', false);
+                        },
+
+                        show: function () { return Object.keys(guided_tour_global.licensesGitoqlok).length > 0 }
+                    },
+                    {
+                        label: "Contact databridge",
+                        component: "link",
+                        url: 'https://www.databridge.ch/contact-us'
                     }
                 ]
             }
@@ -433,7 +457,7 @@ define(["qlik", "jquery", "./tooltips", "./license", "./picker", "./findObjects"
                     {
                         label: function (arg) { return 'Installed version: ' + guided_tour_global.qext.version },
                         component: "link",
-                        url: '../extensions/db_ext_guided_tour_3/db_ext_guided_tour_3.qext'
+                        url: '../extensions/db_ext_licenses/db_ext_licenses.qext'
                     },
                     {
                         label: "This extension is available either licensed or free of charge by data/\\bridge, Qlik OEM partner and specialist for Mashup integrations.",

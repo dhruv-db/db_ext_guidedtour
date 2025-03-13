@@ -1,8 +1,19 @@
-define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
-    "./license", "./picker", "./qlik-css-selectors"], function
-    (qlik, $, cssContent, props, tooltips, license, picker, qlikCss) {
+
+define(["qlik", "jquery", "text!./styles.css", "./js/props", "./js/tooltips",
+    "./js/picker", "./js/qlik-css-selectors", "./licenseUtils/check_license"], function
+    (qlik, $, cssContent, props, tooltips,
+        picker, qlikCss, checkLicenseModule) {
 
     'use strict';
+
+    // import('../db_ext_guided_tour_3/js/license.js')
+    //     .then((lic) => {
+    //         lic.hw();
+    //     })
+    //     .catch((err) => {
+    //         console.error('Failed to load module:', err);
+    //     });
+
 
     const hintTxt = 'This is a tour without any tooltips yet. <ul><li>Please click on the small <strong>'
         + '<span style="background:green;color:white;border-radius:10px;">&nbsp;+&nbsp;</span></strong>'
@@ -12,21 +23,43 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
 
     var guided_tour_global = {
         qext: {}, // extension meta-information
-        hashmap: license.hashmap(location.hostname, 'db_ext_guided_tour'), // hash map for the license check
-
+        //hashmap: license.hashmap(location.hostname, 'db_ext_guided_tour'), // hash map for the license check
+        licensesGlobal: {}, // all licenses from the extension setting, the licenses.json file
+        // checkLicenseModule: null, // placeholder to put the module of extension db_ext_licenses (loaded with require)
+        licensesGitoqlok: {}, // licenses from gitoqlok object
+        licensedObjs: {}, // list of all extension-ids which have a license
         activeTooltip: {},  // remember all active tours, contains later one entry per extension and the 
         // an integer shows the active tooltip (0..n) or -2 if tour is inactive, -1 (in hover-mode) if armed
-
         visitedTours: {},  // all extension-ids which will be started, are added to this object
-
-        licensedObjs: {}, // list of all extension-ids which have a license
-
         tooltipsCache: {}, // the tour items of each tour will be put here under the key of the objectId when started 
-
         noLicenseWarning: {}, // in order not to suppress repeating license warnings , every extension id is added here once the warning was shown
-
         objAliases: {}
     }
+
+    // load optional module license
+    // if (!guided_tour_global.checkLicenseModule) {
+    //     require(['../extensions/db_ext_licenses/check_licenses.js'],
+    //         function (checkLicenseModule) {
+    //             guided_tour_global.checkLicenseModule = checkLicenseModule; // put module into global object
+    // Get JSON with licenses
+    $.ajax({
+        url: '../extensions/db_ext_licenses/licenses.json',
+        dataType: 'json',
+        async: true,  // don't wait for this call to finish.
+        success: function (data) {
+            guided_tour_global.licensesGlobal = data;
+            // guided_tour_global.licenseSource = 'db_ext_licenses/licenses.json';
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.log('Did not find licenses.json in "db_ext_licenses" extension. Contact databridge.ch');
+        }
+    });
+    //         },
+    //         function (err) {
+    //             console.warn('databridge licenses extension "db_ext_licenses" not found. Running in unlicensed mode.');
+    //         }
+    //     );
+    // }
 
     // const lStorageDefault = '{"openedAt":"18991231000000", "objectsOpened": {}}';
     // function noLicenseMsg(mode) {
@@ -246,7 +279,22 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
 
             $(`[tid="${ownId}"] ${qlikCss.v(0).innerObject}`).css('background-color', layout.pExtensionBgColor); // set bg-color in Sense Client
 
-            guided_tour_global.licensedObjs[ownId] = license.chkLicenseJson(layout.pLicenseJSON, 'db_ext_guided_tour');
+            // provide a license either from  db_ext_licenses extension (there's a .json) or from gitoqlok object
+            if (!guided_tour_global.licensedObjs.hasOwnProperty(ownId)) {
+                guided_tour_global.licensedObjs[ownId] = checkLicenseModule.vlt(
+                    guided_tour_global.licensesGlobal, location.hostname, app.id).summary;
+
+                // try to find an alternative license in gitoqlok meta-data object
+                checkLicenseModule.gitoqlokObjects(app).then(gitoqlokObjArr => {
+                    // console.log('resolved promises with gitoqlok objects', gitoqlokObjArr);
+                    guided_tour_global.licensesGitoqlok = checkLicenseModule.getLatestGitoqlokLic(gitoqlokObjArr);
+                    guided_tour_global.licensedObjs[ownId] = guided_tour_global.licensedObjs[ownId] || checkLicenseModule.vlt(
+                        guided_tour_global.licensesGitoqlok, location.hostname, app.id).summary;
+                })
+
+                //console.log('recorded guided_tour_global.licensedObjs.' + ownId, guided_tour_global.licensedObjs);
+            }
+
             const licensed = guided_tour_global.licensedObjs[ownId];
             guided_tour_global.tooltipsCache[ownId] = tooltips.getActiveTooltips(layout.pTourItems);
 
@@ -465,4 +513,9 @@ define(["qlik", "jquery", "text!./styles.css", "./props", "./tooltips",
 
         }
     };
+    //     },
+    //     function (errLoadModule) {
+    //         console.warn('databridge Licenser extension not found. Running in unlicensed mode ...', errLoadModule);
+    //     }
+    // );
 });
