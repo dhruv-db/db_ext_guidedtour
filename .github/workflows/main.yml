@@ -46,11 +46,6 @@ jobs:
       - name: Create ZIP Package
         run: zip -r qlik-extension-${{ env.VERSION }}.zip dist/
 
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
       - name: Upload to Azure Blob Storage
         run: |
           az storage blob upload \
