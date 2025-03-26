@@ -1,5 +1,5 @@
 {
-    "name":  "~db_ext_guided_tour_3~",
+    "name":  "db_ext_guided_tour_3",
     "type":  "visualization",
     "description":  "Extension to show tooltips tours over Qlik Sense objects",
     "author":  "Christof Schwarz",
@@ -16,6 +16,5 @@
                          "qlik-sense":  "\u003e=3.0.x"
                      },
     "keywords":  "qlik-sense, visualization",
-    "license":  "MIT",
-    "repository":  "https://github.com/dhruv-db/db_ext_guidedtour"
+    "license":  "MIT"
 }
