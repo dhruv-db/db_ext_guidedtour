@@ -1,0 +1,80 @@
+name: Build & Deploy Qlik Extension
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Set Version
+        run: echo "VERSION=3" >> $GITHUB_ENV
+
+      - name: Setup Directory Structure
+        run: mkdir -p dist/js dist/licenseUtils
+
+      - name: Obfuscate Main JS File
+        run: |
+          npm install -g javascript-obfuscator
+          javascript-obfuscator db_ext_guided_tour_3.js --output dist/db_ext_guided_tour_3.js
+
+      - name: Obfuscate JS Folder Files
+        run: |
+          for file in js/*.js; do
+            filename=$(basename "$file")
+            javascript-obfuscator "$file" --output "dist/js/$filename"
+          done
+
+      - name: Obfuscate LicenseUtils Folder Files
+        run: |
+          for file in licenseUtils/*.js; do
+            filename=$(basename "$file")
+            javascript-obfuscator "$file" --output "dist/licenseUtils/$filename"
+          done
+
+      - name: Copy Non-JS Files
+        run: |
+          cp db_ext_guided_tour_3.qext dist/
+          cp styles.css dist/
+          cp -r pics dist/
+          cp README.md dist/
+          cp wbfolder.wbl dist/
+
+      - name: Create ZIP Package
+        run: zip -r "db Guided Tour ${{ env.VERSION }}.zip" dist/
+
+      - name: Upload to Azure Blob Storage
+        run: |
+          # Check if blob exists without failing the script
+          exists=$(az storage blob exists \
+            --account-name "${{ secrets.AZURE_STORAGE_ACCOUNT }}" \
+            --container-name release \
+            --name "db Guided Tour ${{ env.VERSION }}.zip" \
+            --sas-token "${{ secrets.AZURE_SAS_TOKEN }}" \
+            --query 'exists' -o tsv)
+          
+          if [ "$exists" == "true" ]; then
+            echo "Deleting existing blob..."
+            az storage blob delete \
+              --account-name "${{ secrets.AZURE_STORAGE_ACCOUNT }}" \
+              --container-name release \
+              --name "db Guided Tour ${{ env.VERSION }}.zip" \
+              --sas-token "${{ secrets.AZURE_SAS_TOKEN }}" \
+              --delete-snapshots include
+          fi
+
+          echo "Uploading new version..."
+          az storage blob upload \
+            --account-name "${{ secrets.AZURE_STORAGE_ACCOUNT }}" \
+            --container-name release \
+            --name "db Guided Tour ${{ env.VERSION }}.zip" \
+            --file "db Guided Tour ${{ env.VERSION }}.zip" \
+            --sas-token "${{ secrets.AZURE_SAS_TOKEN }}" \
+            --overwrite
+
+      - name: Output Public Download Link
+        run: |
+          echo "Download URL: https://${{ secrets.AZURE_STORAGE_ACCOUNT }}.blob.core.windows.net/release/db%20Guided%20Tour%20${{ env.VERSION }}.zip${{ secrets.AZURE_SAS_TOKEN }}"
