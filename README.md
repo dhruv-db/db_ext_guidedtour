@@ -65,6 +65,19 @@ Those tooltip attributes will overrule the default settings in the "Tooltips Tex
 Like any other object, the dimension could be dynamically be calculated. That allows for example the text of the tooltip in different languages, based on a formula with a
 variable. E.g. the 2nd dimension is `=tooltip.$(vLanguage)` and the variable `vLanguage` has values like "en" or "fr", it picks a different fields `tooltip.en` or `tooltip.fr`
 
+## Auto upload steps (For Developers)
+
+- Make changes and upload them to the `master` (default) branch.  
+- Once any commit or push happens on `main`, it will trigger GitHub automation.  
+- GitHub will create a ZIP file and upload it to our DB internal blob storage inside this container: `qlikreleasestoragepub`.  
+- Then needs to build a new URL and place it inside redirects inside this URL (https://db-license-backend-webapp.azurewebsites.net/download)
+
+---
+
+This extension allows to make a tour of styleable tooltips (text bubbles) which highlight certain objects on a worksheet.
+
+![screenshot](./pics/GuidedTourAnimated.gif "Animation")
+
 ## Licensed Version
 
 The licensed version gives you support, removes the ad ("sponsored by data/\bridge") at the end of a tour, and enables the advanced modes.
